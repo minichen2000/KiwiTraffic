@@ -59,6 +59,11 @@
         "resolved": "13.0.3",
         "contentHash": "HrC5BXdl00IP9zeV+0Z848QWPAoCr9P3bDEZguI+gkLcBKAOxix/tLEAAHC+UvDNPv4a2d18lOReHMOagPa+zQ=="
       },
+      "System.Security.Cryptography.ProtectedData": {
+        "type": "Transitive",
+        "resolved": "10.0.12",
+        "contentHash": "wO0W8VDMeRJZakRySOmemAnrBZMwEFRlbfBtATxUiLf2I3IhSRnCp1Vt157NWptdE4IJ7eftd5n8q9LtaKHFTQ=="
+      },
       "xunit.abstractions": {
         "type": "Transitive",
         "resolved": "2.0.3",
@@ -105,7 +110,8 @@
       "kiwitraffic.infrastructure": {
         "type": "Project",
         "dependencies": {
-          "KiwiTraffic.Core": "[0.1.0, )"
+          "KiwiTraffic.Core": "[0.1.0, )",
+          "System.Security.Cryptography.ProtectedData": "[10.0.12, )"
         }
       }
     }
