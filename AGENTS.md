@@ -116,6 +116,9 @@ shell 用 **pwsh 7**，不要用 Windows PowerShell 5.1。
   它在 WindowsDesktop 共享框架里没有。这是目前唯一的外部依赖，不要顺手加别的。
 - **凭据必须绑定 VPS**：`StoredCredentials.ApiKeyProfileId` 是防止「新 VEID 配旧密钥」的
   关键，任何新增的密钥类字段都要想清楚它的作用域（机器级还是 VPS 级）。
+- **测试不得依赖本机时区。** 断言里出现 `ToLocalTime()` 的代码路径时，测试输入必须用
+  `TimeZoneInfo.Local.GetUtcOffset(...)` 构造。写死 `+08:00` 之类的偏移在作者机器上是恒等变换，
+  在 UTC 的 CI runner 上必挂（本项目已因此挂过一次 v0.1.0 的构建）。
 - **写进配置文件的枚举，数值就是格式**：`IndicatorStyle` / `ProxyMode` 的值会序列化进
   settings.json，还被当作设置界面下拉项的索引，**不能重新排序**。新增这类枚举时显式写数值
   并加一条钉死数值的测试。
