@@ -113,6 +113,16 @@ shell 用 **pwsh 7**，不要用 Windows PowerShell 5.1。
   它在 WindowsDesktop 共享框架里没有。这是目前唯一的外部依赖，不要顺手加别的。
 - **凭据必须绑定 VPS**：`StoredCredentials.ApiKeyProfileId` 是防止「新 VEID 配旧密钥」的
   关键，任何新增的密钥类字段都要想清楚它的作用域（机器级还是 VPS 级）。
+- **写进配置文件的枚举，数值就是格式**：`IndicatorStyle` / `ProxyMode` 的值会序列化进
+  settings.json，还被当作设置界面下拉项的索引，**不能重新排序**。新增这类枚举时显式写数值
+  并加一条钉死数值的测试。
+- **App 项目保持零 P/Invoke、零 unsafe。** `[LibraryImport]` 会要求整个程序集开
+  `AllowUnsafeBlocks`，不值得。单实例用命名 `EventWaitHandle`，托盘图标在内存里拼
+   PNG-in-ICO。加新的原生调用前先找托管替代方案。
+- **托盘图标由 `App` 持有**，不是 `MainWindow`：隐藏窗口时图标必须还在，它的生命周期属于
+  整个进程。（窗口持有可释放字段会触发 CA1001，而 `Window` 不该实现 `IDisposable`。）
+- **默认窗口位置用主显示器工作区**（`SystemParameters.WorkArea`），虚拟桌面只用于
+  「别跑到所有屏幕外」的夹取。双屏（副屏在右）时按虚拟桌面右下角放置会落到副屏。
 
 ## 记录文件分工
 

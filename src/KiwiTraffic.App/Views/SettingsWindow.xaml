@@ -103,13 +103,22 @@
                        FontSize="11" Margin="0,4,0,0" TextWrapping="Wrap" />
         </StackPanel>
 
+        <!-- Appearance -->
+
+        <TextBlock Grid.Row="7" Grid.Column="0" Text="显示样式" VerticalAlignment="Center"
+                   Margin="0,0,12,8" />
+        <ComboBox Grid.Row="7" Grid.Column="1" Margin="0,0,0,8"
+                  ItemsSource="{Binding IndicatorStyleNames}"
+                  SelectedIndex="{Binding IndicatorStyleIndex}"
+                  ToolTip="圆环把百分比放在环心；进度条横向展开。两者显示的数字相同。" />
+
         <!-- Status and actions -->
 
-        <TextBlock Grid.Row="7" Grid.ColumnSpan="2" Margin="0,4,0,10"
+        <TextBlock Grid.Row="8" Grid.ColumnSpan="2" Margin="0,4,0,10"
                    Text="{Binding StatusMessage}" TextWrapping="Wrap"
                    Visibility="{Binding HasStatusMessage, Converter={StaticResource Show}}" />
 
-        <StackPanel Grid.Row="8" Grid.ColumnSpan="2" Orientation="Horizontal"
+        <StackPanel Grid.Row="9" Grid.ColumnSpan="2" Orientation="Horizontal"
                     HorizontalAlignment="Right" Margin="0,6,0,0">
             <Button Content="测试连接" Padding="14,4" Margin="0,0,8,0"
                     IsEnabled="{Binding IsNotBusy}" Click="OnTestConnection" />

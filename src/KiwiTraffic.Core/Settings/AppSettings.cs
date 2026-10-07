@@ -77,6 +77,15 @@ public sealed record AppSettings
 
     public bool AlwaysOnTop { get; init; } = true;
 
+    /// <summary>Which indicator the widget draws. Both show the same number.</summary>
+    public IndicatorStyle IndicatorStyle { get; init; } = IndicatorStyle.Ring;
+
+    /// <summary>
+    /// Where the widget was last seen, or <c>null</c> when it has never been
+    /// moved. Restoring is always clamped to the current desktop.
+    /// </summary>
+    public WindowPlacement? Placement { get; init; }
+
     public AlertSettings Alerts { get; init; } = new();
 
     /// <summary>True once a VEID has been entered.</summary>

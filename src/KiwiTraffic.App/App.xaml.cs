@@ -21,6 +21,8 @@ namespace KiwiTraffic.App;
 public partial class App : Application
 {
     private AppServices? _services;
+    private SingleInstanceGuard? _singleInstance;
+    private TrayIcon? _tray;
 
     protected override void OnStartup(StartupEventArgs e)
     {
@@ -28,9 +30,35 @@ public partial class App : Application
 
         DispatcherUnhandledException += OnDispatcherUnhandledException;
 
-        // The tray icon arrives in M3; until then, closing the window is how
-        // the application ends, and startup may show two windows in sequence.
+        // The widget lives in the tray, so the process must outlive its window:
+        // closing is handled by MainWindow, and only the tray's Exit ends it.
         ShutdownMode = ShutdownMode.OnExplicitShutdown;
+
+        try
+        {
+            _singleInstance = SingleInstanceGuard.Acquire();
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show(
+                $"无法建立单实例标识：{ex.Message}",
+                "KiwiTraffic",
+                MessageBoxButton.OK,
+                MessageBoxImage.Error);
+
+            Shutdown(1);
+            return;
+        }
+
+        if (!_singleInstance.IsFirstInstance)
+        {
+            // Ask whoever is already running to come forward, then step aside.
+            _singleInstance.SignalExistingInstance();
+            _singleInstance.Dispose();
+            _singleInstance = null;
+            Shutdown();
+            return;
+        }
 
         _services = new AppServices();
 
@@ -62,7 +90,14 @@ public partial class App : Application
 
         var session = _services.ConfigureSession(settings, apiKey, credentials?.ProxyPassword);
 
-        var window = new MainWindow(_services, session, settings, apiKey);
+        // The icon has to outlive the window: hiding to the tray must not
+            // take the way back with it.
+        _tray = new TrayIcon(settings.AlwaysOnTop, windowVisible: true);
+
+        var window = new MainWindow(_services, session, settings, apiKey, _tray);
+
+        _singleInstance.ListenForActivation(() => Dispatcher.BeginInvoke(window.ShowFromTray));
+
         MainWindow = window;
         window.Closed += (_, _) => Shutdown();
         window.Show();
@@ -72,7 +107,9 @@ public partial class App : Application
 
     protected override void OnExit(ExitEventArgs e)
     {
+        _tray?.Dispose();
         _services?.Dispose();
+        _singleInstance?.Dispose();
         base.OnExit(e);
     }
 

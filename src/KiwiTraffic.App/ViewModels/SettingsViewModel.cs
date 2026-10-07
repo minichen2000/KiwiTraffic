@@ -16,7 +16,17 @@ public sealed class SettingsViewModel : ObservableObject
     public static IReadOnlyList<string> ProxyModeNames { get; } =
         ["使用系统默认代理", "直连（不使用代理）", "手动指定代理"];
 
+    public static IReadOnlyList<string> IndicatorStyleNames { get; } =
+        ["圆环", "进度条"];
+
     private readonly string? _storedProxyPassword;
+
+    /// <summary>
+    /// The configuration as it was loaded. Saving builds on top of this with
+    /// <c>with</c> expressions, so fields this window does not edit - the
+    /// window position, for instance - are preserved rather than reset.
+    /// </summary>
+    private readonly AppSettings? _original;
 
     private string _alias = string.Empty;
     private string _veidText = string.Empty;
@@ -28,13 +38,17 @@ public sealed class SettingsViewModel : ObservableObject
     private string _proxyPortText = string.Empty;
     private string _proxyUsername = string.Empty;
     private string _proxyPassword = string.Empty;
+    private int _indicatorStyleIndex = (int)IndicatorStyle.Ring;
     private string _statusMessage = string.Empty;
     private bool _isBusy;
 
     public SettingsViewModel(AppSettings? existing, StoredCredentials? credentials)
     {
+        _original = existing;
+
         if (existing is not null)
         {
+            _indicatorStyleIndex = IndexForStyle(existing.IndicatorStyle);
             _alias = existing.Alias;
             _veidText = existing.Veid > 0 ? existing.Veid.ToString(CultureInfo.InvariantCulture) : string.Empty;
             _rememberApiKey = existing.RememberApiKey;
@@ -99,6 +113,13 @@ public sealed class SettingsViewModel : ObservableObject
     }
 
     public bool IsManualProxy => ProxyModeIndex == (int)ProxyMode.Manual;
+
+    /// <summary>Index into <see cref="IndicatorStyleNames"/>.</summary>
+    public int IndicatorStyleIndex
+    {
+        get => _indicatorStyleIndex;
+        set => SetProperty(ref _indicatorStyleIndex, value);
+    }
 
     public string ProxyHost
     {
@@ -185,14 +206,29 @@ public sealed class SettingsViewModel : ObservableObject
             };
         }
 
-        return new AppSettings
+        // Build on the loaded configuration rather than a fresh object: this
+        // window does not edit the window position, the refresh interval, the
+        // alert settings or "start with Windows", and saving must not wipe them.
+        var baseline = _original ?? new AppSettings();
+
+        return baseline with
         {
             Alias = Alias.Trim(),
             Veid = veid,
             RememberApiKey = RememberApiKey,
             Proxy = proxy,
+            IndicatorStyle = IndicatorStyleIndex == (int)IndicatorStyle.Bar
+                ? IndicatorStyle.Bar
+                : IndicatorStyle.Ring,
         };
     }
+
+    /// <summary>
+    /// Keeps the drop-down and the enum in step. Both directions are needed,
+    /// and the enum order has to match <see cref="IndicatorStyleNames"/>.
+    /// </summary>
+    private static int IndexForStyle(IndicatorStyle style)
+        => style == IndicatorStyle.Bar ? (int)IndicatorStyle.Bar : (int)IndicatorStyle.Ring;
 
     /// <summary>The secrets to persist, or <c>null</c> when none should be kept.</summary>
     public StoredCredentials? BuildCredentials()

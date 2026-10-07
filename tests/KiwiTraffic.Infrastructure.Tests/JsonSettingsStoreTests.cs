@@ -87,8 +87,9 @@ public class JsonSettingsStoreTests
     private static readonly string[] ExpectedPropertyNames =
     [
         "alerts", "alias", "alwaysOnTop", "enabled", "hasStoredPassword", "host",
-        "mode", "port", "proxy", "refreshIntervalMinutes", "rememberApiKey",
-        "schemaVersion", "startWithWindows", "thresholds", "username", "veid",
+        "indicatorStyle", "mode", "placement", "port", "proxy",
+        "refreshIntervalMinutes", "rememberApiKey", "schemaVersion",
+        "startWithWindows", "thresholds", "username", "veid",
     ];
 
     /// <summary>

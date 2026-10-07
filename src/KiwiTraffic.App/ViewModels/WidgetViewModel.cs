@@ -1,6 +1,7 @@
 using System.Globalization;
 using KiwiTraffic.Core.Formatting;
 using KiwiTraffic.Core.Model;
+using KiwiTraffic.Core.Settings;
 
 namespace KiwiTraffic.App.ViewModels;
 
@@ -9,21 +10,22 @@ namespace KiwiTraffic.App.ViewModels;
 /// </summary>
 /// <remarks>
 /// Everything here comes from <see cref="TrafficUsage"/>; no raw API field is
-/// ever read or converted in the UI. The real floating widget (position,
-/// always-on-top, tray) arrives in M3 - this is the content, not the chrome.
+/// ever read or converted in the UI.
 /// </remarks>
 public sealed class WidgetViewModel : ObservableObject
 {
     private string _statusMessage = string.Empty;
     private bool _isBusy;
+    private UsageLevel _level = UsageLevel.Normal;
 
-    private WidgetViewModel(string alias)
+    private WidgetViewModel(string alias, IndicatorStyle style)
     {
         Alias = alias;
+        Style = style;
     }
 
     /// <summary>Nothing readable yet - shows placeholders, never a fake 0 %.</summary>
-    public static WidgetViewModel Loading(string alias) => new(alias)
+    public static WidgetViewModel Loading(string alias, IndicatorStyle style) => new(alias, style)
     {
         PercentText = "—",
         UsedQuotaText = "正在读取…",
@@ -35,23 +37,37 @@ public sealed class WidgetViewModel : ObservableObject
     public static WidgetViewModel FromSnapshot(
         string alias,
         TrafficSnapshot snapshot,
-        DateTimeOffset now)
+        DateTimeOffset now,
+        IndicatorStyle style)
     {
         ArgumentNullException.ThrowIfNull(snapshot);
 
-        var usage = snapshot.ToUsage();
-        var viewModel = new WidgetViewModel(alias);
-
-        viewModel.Apply(usage, snapshot, now);
+        var viewModel = new WidgetViewModel(alias, style);
+        viewModel.Apply(snapshot.ToUsage(), snapshot, now);
 
         return viewModel;
     }
 
     public string Alias { get; }
 
+    public IndicatorStyle Style { get; }
+
+    public bool IsRingStyle => Style == IndicatorStyle.Ring;
+
+    public bool IsBarStyle => Style == IndicatorStyle.Bar;
+
+    /// <summary>False until a reading has been applied, so the gauge can stay hidden.</summary>
+    public bool HasData => HasEverApplied;
+
     public string PercentText { get; private set; } = "—";
 
     public double ProgressValue { get; private set; }
+
+    public UsageLevel Level
+    {
+        get => _level;
+        private set => SetProperty(ref _level, value);
+    }
 
     public string UsedQuotaText { get; private set; } = string.Empty;
 
@@ -89,6 +105,8 @@ public sealed class WidgetViewModel : ObservableObject
 
     public bool IsNotBusy => !IsBusy;
 
+    private bool HasEverApplied { get; set; }
+
     /// <summary>Re-renders the reading against a new "now" so relative times stay true.</summary>
     public void Apply(TrafficUsage usage, TrafficSnapshot snapshot, DateTimeOffset now)
     {
@@ -100,6 +118,9 @@ public sealed class WidgetViewModel : ObservableObject
             : "额度未知";
 
         ProgressValue = (double)usage.ProgressValue;
+
+        // Colour is decoration; the same information is in the text either way.
+        Level = UsageLevelClassifier.Classify(usage.UsedPercent);
 
         var used = ByteSizeFormatter.Format(usage.UsedBytes, DisplayFormat.BytePrefix);
         UsedQuotaText = usage.QuotaBytes is { } quota
@@ -113,12 +134,15 @@ public sealed class WidgetViewModel : ObservableObject
         ResetText = DescribeReset(snapshot.NextResetAtUtc, now);
         UpdatedText = $"更新于 {DescribeAge(snapshot.FetchedAtUtc, now)}";
 
+        HasEverApplied = true;
+
         OnPropertyChanged(nameof(PercentText));
         OnPropertyChanged(nameof(ProgressValue));
         OnPropertyChanged(nameof(UsedQuotaText));
         OnPropertyChanged(nameof(RemainingText));
         OnPropertyChanged(nameof(ResetText));
         OnPropertyChanged(nameof(UpdatedText));
+        OnPropertyChanged(nameof(HasData));
     }
 
     /// <summary>
@@ -141,7 +165,7 @@ public sealed class WidgetViewModel : ObservableObject
         var local = nextResetAtUtc.Value.ToLocalTime();
         var days = (int)Math.Ceiling((nextResetAtUtc.Value - now).TotalDays);
 
-        return $"重置 {local.ToString("yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture)}（还有 {days} 天）";
+        return $"{local.ToString("yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture)} 重置 · 还有 {days} 天";
     }
 
     /// <summary>
@@ -157,21 +181,12 @@ public sealed class WidgetViewModel : ObservableObject
             age = TimeSpan.Zero;
         }
 
-        if (age < TimeSpan.FromMinutes(1))
+        return age switch
         {
-            return "刚刚";
-        }
-
-        if (age < TimeSpan.FromHours(1))
-        {
-            return $"{(int)age.TotalMinutes} 分钟前";
-        }
-
-        if (age < TimeSpan.FromDays(1))
-        {
-            return $"{(int)age.TotalHours} 小时前";
-        }
-
-        return $"{(int)age.TotalDays} 天前";
+            { TotalMinutes: < 1 } => "刚刚",
+            { TotalHours: < 1 } => $"{(int)age.TotalMinutes} 分钟前",
+            { TotalDays: < 1 } => $"{(int)age.TotalHours} 小时前",
+            _ => $"{(int)age.TotalDays} 天前",
+        };
     }
 }

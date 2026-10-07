@@ -5,9 +5,9 @@ billing-cycle traffic your BandwagonHost (KiwiVM) VPS has used — without
 opening the control panel.
 
 > **Status: usable, but unfinished.** It reads real data from the KiwiVM API:
-> set up your VEID and API key and it shows the current cycle's usage. What is
-> still missing is the widget chrome — tray icon, always-on-top, remembered
-> position (M3) and automatic refresh (M4) — so for now you refresh by hand.
+> set up your VEID and API key and it shows the current cycle's usage in a
+> floating widget that lives in the tray. What is still missing is automatic
+> refresh and the traffic alerts (M4) — so for now you refresh by hand.
 >
 > One caveat before trusting a number: the official API documentation sits
 > behind a panel login, so the data contract here was reconstructed from public
@@ -80,13 +80,15 @@ See [BUILD.md](BUILD.md) for details.
 1. Run `KiwiTraffic.exe`. It has no installer — put it wherever you like.
 2. On first launch it asks for a VPS alias (optional), the VEID and the API
    key. Both are found in your KiwiVM control panel under *API*.
-3. The window shows the current cycle. Use *Refresh* to fetch again, or
-   *Settings…* to change the configuration.
+3. The widget floats above your other windows. Drag it anywhere — it comes back
+   where you left it. The reading is drawn either as a ring or as a progress
+   bar; pick one in Settings.
+4. The tray icon has the menu: show/hide, refresh, always-on-top, settings,
+   restore window position, exit. **Closing the window hides it to the tray**,
+   so use *Exit* in that menu to quit.
 
-   Not there yet: the window does not stay on top, does not remember its
-   position, has no tray icon, and does not refresh by itself. Closing it quits
-   the application. Those arrive with M3 and M4 — see
-   [PROGRESS.md](PROGRESS.md).
+   Not there yet: it does not refresh by itself, and there are no threshold
+   alerts. Those arrive with M4 — see [PROGRESS.md](PROGRESS.md).
 
 ## Data & privacy
 

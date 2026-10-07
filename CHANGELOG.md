@@ -28,6 +28,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   numbers on screen and states the reason instead of showing zeros.
 - API error codes are surfaced verbatim; only `error == 0` counts as success.
 
+### Added
+
+- The widget is now a borderless floating card: drag it anywhere, and it comes
+  back where you left it (clamped so it can never end up off every screen).
+- Two ways to show the reading, chosen in Settings: a **ring** with the
+  percentage in the middle, or a **progress bar**. Both show the same number.
+- A tray icon with a status tooltip and a menu: show/hide, refresh,
+  always-on-top, settings, restore window position, exit.
+- Closing the window now hides it to the tray instead of quitting; the tray
+  menu has the explicit Exit.
+- Starting the program twice no longer starts a second widget — the running one
+  comes to the front instead.
+
 ### Changed
 
 - The M1 simulated-data preview has been replaced by real data. There is no
