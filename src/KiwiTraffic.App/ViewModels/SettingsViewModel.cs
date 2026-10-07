@@ -39,6 +39,7 @@ public sealed class SettingsViewModel : ObservableObject
     private string _proxyUsername = string.Empty;
     private string _proxyPassword = string.Empty;
     private int _indicatorStyleIndex = (int)IndicatorStyle.Ring;
+    private int _themeIndex = (int)AppTheme.Light;
     private string _statusMessage = string.Empty;
     private bool _isBusy;
 
@@ -49,6 +50,7 @@ public sealed class SettingsViewModel : ObservableObject
         if (existing is not null)
         {
             _indicatorStyleIndex = IndexForStyle(existing.IndicatorStyle);
+            _themeIndex = existing.Theme == AppTheme.Dark ? (int)AppTheme.Dark : (int)AppTheme.Light;
             _alias = existing.Alias;
             _veidText = existing.Veid > 0 ? existing.Veid.ToString(CultureInfo.InvariantCulture) : string.Empty;
             _rememberApiKey = existing.RememberApiKey;
@@ -120,6 +122,24 @@ public sealed class SettingsViewModel : ObservableObject
         get => _indicatorStyleIndex;
         set => SetProperty(ref _indicatorStyleIndex, value);
     }
+
+    /// <summary>
+    /// Selected theme, as the chip group's index. Changing it is applied
+    /// immediately so the choice can be seen rather than imagined.
+    /// </summary>
+    public int ThemeIndex
+    {
+        get => _themeIndex;
+        set
+        {
+            if (SetProperty(ref _themeIndex, value))
+            {
+                OnPropertyChanged(nameof(SelectedTheme));
+            }
+        }
+    }
+
+    public AppTheme SelectedTheme => ThemeIndex == (int)AppTheme.Dark ? AppTheme.Dark : AppTheme.Light;
 
     public string ProxyHost
     {
@@ -220,6 +240,7 @@ public sealed class SettingsViewModel : ObservableObject
             IndicatorStyle = IndicatorStyleIndex == (int)IndicatorStyle.Bar
                 ? IndicatorStyle.Bar
                 : IndicatorStyle.Ring,
+            Theme = SelectedTheme,
         };
     }
 

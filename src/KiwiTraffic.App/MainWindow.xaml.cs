@@ -1,6 +1,9 @@
 using System.ComponentModel;
+using System.Globalization;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Media;
 using System.Windows.Threading;
 using KiwiTraffic.App.Services;
 using KiwiTraffic.App.ViewModels;
@@ -219,6 +222,39 @@ public partial class MainWindow : Window
 
     // --- window behaviour -----------------------------------------------------
 
+    /// <summary>
+    /// Shows the tooltip only when the name is actually cut off - a tooltip
+    /// repeating text that is already fully visible is just noise.
+    /// </summary>
+    private void OnAliasToolTipOpening(object sender, ToolTipEventArgs e)
+    {
+        if (sender is TextBlock block && !IsTextTrimmed(block))
+        {
+            e.Handled = true;
+        }
+    }
+
+    private static bool IsTextTrimmed(TextBlock block)
+    {
+        if (string.IsNullOrEmpty(block.Text) || block.ActualWidth <= 0)
+        {
+            return false;
+        }
+
+        var typeface = new Typeface(block.FontFamily, block.FontStyle, block.FontWeight, block.FontStretch);
+
+        var measured = new FormattedText(
+            block.Text,
+            CultureInfo.CurrentUICulture,
+            block.FlowDirection,
+            typeface,
+            block.FontSize,
+            block.Foreground,
+            VisualTreeHelper.GetDpi(block).PixelsPerDip);
+
+        return measured.Width > block.ActualWidth;
+    }
+
     private void OnCardMouseDown(object sender, MouseButtonEventArgs e)
     {
         if (e.ChangedButton != MouseButton.Left)
@@ -419,6 +455,7 @@ public partial class MainWindow : Window
 
         Topmost = settings.AlwaysOnTop;
         _tray.SetTopmost(settings.AlwaysOnTop);
+        ThemeManager.Apply(settings.Theme);
 
         _viewModel = WidgetViewModel.Loading(settings.DisplayName, settings.IndicatorStyle);
         DataContext = _viewModel;

@@ -121,6 +121,13 @@ shell 用 **pwsh 7**，不要用 Windows PowerShell 5.1。
    PNG-in-ICO。加新的原生调用前先找托管替代方案。
 - **托盘图标由 `App` 持有**，不是 `MainWindow`：隐藏窗口时图标必须还在，它的生命周期属于
   整个进程。（窗口持有可释放字段会触发 CA1001，而 `Window` 不该实现 `IDisposable`。）
+- **颜色一律走 `DynamicResource`**，键定义在 `Themes/Light.xaml` 与 `Themes/Dark.xaml` 里，
+  两份文件的键必须完全一致（整份字典被替换，缺键就是一片空白）。控件样式在
+  `Themes/Controls.xaml`，由 `ThemeManager.Apply` 换字典，不重建窗口。
+- **应用图标是生成的**：改图标外观要改 `scripts/make-app-icon.ps1` 再跑一次，
+  不要直接手改 `Assets/app.ico`。它同时是 EXE 图标和两个窗口的图标来源。
+- **位图/图标不手绘进仓库**：托盘图标在运行时画（还按用量变色），
+  应用图标由脚本生成，两者都不依赖设计稿。
 - **默认窗口位置用主显示器工作区**（`SystemParameters.WorkArea`），虚拟桌面只用于
   「别跑到所有屏幕外」的夹取。双屏（副屏在右）时按虚拟桌面右下角放置会落到副屏。
 

@@ -80,6 +80,9 @@ public sealed record AppSettings
     /// <summary>Which indicator the widget draws. Both show the same number.</summary>
     public IndicatorStyle IndicatorStyle { get; init; } = IndicatorStyle.Ring;
 
+    /// <summary>Light or dark colour scheme.</summary>
+    public AppTheme Theme { get; init; } = AppTheme.Light;
+
     /// <summary>
     /// Where the widget was last seen, or <c>null</c> when it has never been
     /// moved. Restoring is always clamped to the current desktop.

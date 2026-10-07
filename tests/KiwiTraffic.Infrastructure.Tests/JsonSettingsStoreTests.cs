@@ -89,7 +89,7 @@ public class JsonSettingsStoreTests
         "alerts", "alias", "alwaysOnTop", "enabled", "hasStoredPassword", "host",
         "indicatorStyle", "mode", "placement", "port", "proxy",
         "refreshIntervalMinutes", "rememberApiKey", "schemaVersion",
-        "startWithWindows", "thresholds", "username", "veid",
+        "startWithWindows", "theme", "thresholds", "username", "veid",
     ];
 
     /// <summary>

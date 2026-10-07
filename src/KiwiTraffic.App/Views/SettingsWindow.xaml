@@ -3,128 +3,202 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:conv="clr-namespace:KiwiTraffic.App.Converters"
         Title="{Binding WindowTitle}"
-        Width="470"
+        Icon="/Assets/app.ico"
+        Width="540"
         SizeToContent="Height"
+        WindowStyle="None"
+        AllowsTransparency="True"
+        Background="Transparent"
         ResizeMode="NoResize"
-        WindowStartupLocation="CenterScreen">
+        ShowInTaskbar="True"
+        WindowStartupLocation="CenterOwner"
+        UseLayoutRounding="True"
+        TextOptions.TextFormattingMode="Display">
 
     <Window.Resources>
         <conv:BoolToVisibilityConverter x:Key="Show" />
         <conv:BoolToVisibilityConverter x:Key="Hide" Invert="True" />
+        <conv:IndexEqualsConverter x:Key="IndexIs" />
     </Window.Resources>
 
-    <Grid Margin="18">
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="Auto" />
-            <ColumnDefinition Width="*" />
-        </Grid.ColumnDefinitions>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
-        </Grid.RowDefinitions>
+    <!-- The margin leaves room for the drop shadow, which does not affect layout. -->
+    <Border Margin="10" CornerRadius="12"
+            Background="{DynamicResource SurfaceBrush}"
+            BorderBrush="{DynamicResource SurfaceBorderBrush}"
+            BorderThickness="1"
+            Effect="{DynamicResource SurfaceShadow}">
 
-        <!-- Connection -->
+        <StackPanel>
 
-        <TextBlock Grid.Row="0" Grid.Column="0" Text="别名" VerticalAlignment="Center"
-                   Margin="0,0,12,8" />
-        <TextBox Grid.Row="0" Grid.Column="1" Margin="0,0,0,8"
-                 Text="{Binding Alias, UpdateSourceTrigger=PropertyChanged}"
-                 ToolTip="可选，仅用于显示" />
+            <!-- Title bar -->
+            <Border CornerRadius="11,11,0,0" Background="{DynamicResource ChromeBrush}"
+                    Padding="0,9" MouseLeftButtonDown="OnTitleBarMouseDown">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
 
-        <TextBlock Grid.Row="1" Grid.Column="0" Text="VEID" VerticalAlignment="Center"
-                   Margin="0,0,12,8" />
-        <TextBox Grid.Row="1" Grid.Column="1" Margin="0,0,0,8"
-                 Text="{Binding VeidText, UpdateSourceTrigger=PropertyChanged}" />
+                    <Image Grid.Column="0" Source="/Assets/app.ico" Width="16" Height="16"
+                           Margin="14,0,9,0" VerticalAlignment="Center" />
 
-        <TextBlock Grid.Row="2" Grid.Column="0" Text="API Key" VerticalAlignment="Center"
-                   Margin="0,0,12,8" />
-        <Grid Grid.Row="2" Grid.Column="1" Margin="0,0,0,8">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="Auto" />
-            </Grid.ColumnDefinitions>
-            <Grid Grid.Column="0">
-                <PasswordBox x:Name="ApiKeyBox" PasswordChanged="OnApiKeyPasswordChanged"
-                             Visibility="{Binding IsApiKeyVisible, Converter={StaticResource Hide}}" />
-                <TextBox Text="{Binding ApiKey, UpdateSourceTrigger=PropertyChanged}"
-                         Visibility="{Binding IsApiKeyVisible, Converter={StaticResource Show}}" />
-            </Grid>
-            <CheckBox Grid.Column="1" Content="显示" Margin="8,0,0,0" VerticalAlignment="Center"
-                      IsChecked="{Binding IsApiKeyVisible}"
-                      Checked="OnRevealApiKeyToggled" Unchecked="OnRevealApiKeyToggled" />
-        </Grid>
+                    <TextBlock Grid.Column="1" Text="{Binding WindowTitle}" FontSize="12.5"
+                               VerticalAlignment="Center"
+                               Foreground="{DynamicResource PrimaryTextBrush}" />
 
-        <CheckBox Grid.Row="3" Grid.Column="1" Content="在本机记住 API Key（使用 Windows DPAPI 加密）"
-                  Margin="0,0,0,8" IsChecked="{Binding RememberApiKey}" />
+                    <Button Grid.Column="2" Content="✕" Style="{StaticResource FlatButton}"
+                            Margin="0,0,8,0" IsCancel="True" ToolTip="取消" />
+                </Grid>
+            </Border>
 
-        <Separator Grid.Row="4" Grid.ColumnSpan="2" Margin="0,6,0,10" />
-
-        <!-- Proxy -->
-
-        <TextBlock Grid.Row="5" Grid.Column="0" Text="代理" VerticalAlignment="Center"
-                   Margin="0,0,12,8" />
-        <ComboBox Grid.Row="5" Grid.Column="1" Margin="0,0,0,8"
-                  ItemsSource="{Binding ProxyModeNames}"
-                  SelectedIndex="{Binding ProxyModeIndex}" />
-
-        <StackPanel Grid.Row="6" Grid.Column="1" Margin="0,0,0,8"
-                    Visibility="{Binding IsManualProxy, Converter={StaticResource Show}}">
-            <Grid Margin="0,0,0,6">
+            <Grid Margin="18,16,18,16">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*" />
-                    <ColumnDefinition Width="90" />
-                </Grid.ColumnDefinitions>
-                <TextBox Grid.Column="0" Margin="0,0,6,0"
-                         Text="{Binding ProxyHost, UpdateSourceTrigger=PropertyChanged}" />
-                <TextBox Grid.Column="1"
-                         Text="{Binding ProxyPortText, UpdateSourceTrigger=PropertyChanged}" />
-            </Grid>
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
-                <TextBox Grid.Column="0" Margin="0,0,6,0"
-                         ToolTip="用户名（可选）"
-                         Text="{Binding ProxyUsername, UpdateSourceTrigger=PropertyChanged}" />
-                <PasswordBox x:Name="ProxyPasswordBox" Grid.Column="1"
-                             ToolTip="密码（可选，同样加密保存）"
-                             PasswordChanged="OnProxyPasswordChanged" />
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+
+                <!-- Connection -->
+
+                <TextBlock Grid.Row="0" Grid.Column="0" Text="别名" VerticalAlignment="Center"
+                           Margin="0,0,14,10" Foreground="{DynamicResource SecondaryTextBrush}" />
+                <TextBox Grid.Row="0" Grid.Column="1" Margin="0,0,0,10"
+                         Style="{StaticResource RoundedTextBox}"
+                         Text="{Binding Alias, UpdateSourceTrigger=PropertyChanged}"
+                         ToolTip="可选，仅用于显示" />
+
+                <TextBlock Grid.Row="1" Grid.Column="0" Text="VEID" VerticalAlignment="Center"
+                           Margin="0,0,14,10" Foreground="{DynamicResource SecondaryTextBrush}" />
+                <TextBox Grid.Row="1" Grid.Column="1" Margin="0,0,0,10"
+                         Style="{StaticResource RoundedTextBox}"
+                         Text="{Binding VeidText, UpdateSourceTrigger=PropertyChanged}" />
+
+                <TextBlock Grid.Row="2" Grid.Column="0" Text="API Key" VerticalAlignment="Center"
+                           Margin="0,0,14,10" Foreground="{DynamicResource SecondaryTextBrush}" />
+                <Grid Grid.Row="2" Grid.Column="1" Margin="0,0,0,10">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+
+                    <Grid Grid.Column="0">
+                        <PasswordBox x:Name="ApiKeyBox" Style="{StaticResource RoundedPasswordBox}"
+                                     PasswordChanged="OnApiKeyPasswordChanged"
+                                     Visibility="{Binding IsApiKeyVisible, Converter={StaticResource Hide}}" />
+                        <TextBox Style="{StaticResource RoundedTextBox}"
+                                 Text="{Binding ApiKey, UpdateSourceTrigger=PropertyChanged}"
+                                 Visibility="{Binding IsApiKeyVisible, Converter={StaticResource Show}}" />
+                    </Grid>
+
+                    <CheckBox Grid.Column="1" Content="显示" Margin="10,0,0,0" VerticalAlignment="Center"
+                              Style="{StaticResource RoundedCheckBox}"
+                              IsChecked="{Binding IsApiKeyVisible}" />
+                </Grid>
+
+                <CheckBox Grid.Row="3" Grid.Column="1" Margin="0,0,0,6"
+                          Content="在本机记住 API Key（使用 Windows DPAPI 加密）"
+                          Style="{StaticResource RoundedCheckBox}"
+                          IsChecked="{Binding RememberApiKey}" />
+
+                <Separator Grid.Row="4" Grid.ColumnSpan="2" Margin="0,12,0,14"
+                           Background="{DynamicResource SurfaceBorderBrush}" />
+
+                <!-- Proxy -->
+
+                <TextBlock Grid.Row="5" Grid.Column="0" Text="代理" VerticalAlignment="Center"
+                           Margin="0,0,14,10" Foreground="{DynamicResource SecondaryTextBrush}" />
+                <StackPanel Grid.Row="5" Grid.Column="1" Orientation="Horizontal" Margin="0,0,0,10">
+                    <RadioButton Content="系统默认" Style="{StaticResource Chip}" GroupName="Proxy"
+                                 IsChecked="{Binding ProxyModeIndex, Converter={StaticResource IndexIs}, ConverterParameter=0}" />
+                    <RadioButton Content="直连" Style="{StaticResource Chip}" GroupName="Proxy"
+                                 IsChecked="{Binding ProxyModeIndex, Converter={StaticResource IndexIs}, ConverterParameter=1}" />
+                    <RadioButton Content="手动" Style="{StaticResource Chip}" GroupName="Proxy"
+                                 IsChecked="{Binding ProxyModeIndex, Converter={StaticResource IndexIs}, ConverterParameter=2}" />
+                </StackPanel>
+
+                <StackPanel Grid.Row="6" Grid.Column="1" Margin="0,0,0,12"
+                            Visibility="{Binding IsManualProxy, Converter={StaticResource Show}}">
+                    <Grid Margin="0,0,0,8">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="100" />
+                        </Grid.ColumnDefinitions>
+                        <TextBox Grid.Column="0" Margin="0,0,8,0" Style="{StaticResource RoundedTextBox}"
+                                 Text="{Binding ProxyHost, UpdateSourceTrigger=PropertyChanged}"
+                                 ToolTip="代理主机" />
+                        <TextBox Grid.Column="1" Style="{StaticResource RoundedTextBox}"
+                                 Text="{Binding ProxyPortText, UpdateSourceTrigger=PropertyChanged}"
+                                 ToolTip="端口" />
+                    </Grid>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <TextBox Grid.Column="0" Margin="0,0,8,0" Style="{StaticResource RoundedTextBox}"
+                                 Text="{Binding ProxyUsername, UpdateSourceTrigger=PropertyChanged}"
+                                 ToolTip="用户名（可选）" />
+                        <PasswordBox x:Name="ProxyPasswordBox" Grid.Column="1"
+                                     Style="{StaticResource RoundedPasswordBox}"
+                                     PasswordChanged="OnProxyPasswordChanged"
+                                     ToolTip="密码（可选，同样加密保存）" />
+                    </Grid>
+                    <TextBlock Text="第一版不支持 PAC 与 SOCKS。" FontSize="11" Margin="0,6,0,0"
+                               Foreground="{DynamicResource FaintTextBrush}" TextWrapping="Wrap" />
+                </StackPanel>
+
+                <!-- Appearance -->
+
+                <TextBlock Grid.Row="7" Grid.Column="0" Text="显示样式" VerticalAlignment="Center"
+                           Margin="0,0,14,10" Foreground="{DynamicResource SecondaryTextBrush}" />
+                <StackPanel Grid.Row="7" Grid.Column="1" Orientation="Horizontal" Margin="0,0,0,10">
+                    <RadioButton Content="圆环" Style="{StaticResource Chip}" GroupName="Indicator"
+                                 IsChecked="{Binding IndicatorStyleIndex, Converter={StaticResource IndexIs}, ConverterParameter=0}" />
+                    <RadioButton Content="进度条" Style="{StaticResource Chip}" GroupName="Indicator"
+                                 IsChecked="{Binding IndicatorStyleIndex, Converter={StaticResource IndexIs}, ConverterParameter=1}" />
+                </StackPanel>
+
+                <TextBlock Grid.Row="8" Grid.Column="0" Text="主题" VerticalAlignment="Center"
+                           Margin="0,0,14,10" Foreground="{DynamicResource SecondaryTextBrush}" />
+                <StackPanel Grid.Row="8" Grid.Column="1" Orientation="Horizontal" Margin="0,0,0,10">
+                    <RadioButton Content="明亮" Style="{StaticResource Chip}" GroupName="Theme"
+                                 IsChecked="{Binding ThemeIndex, Converter={StaticResource IndexIs}, ConverterParameter=0}" />
+                    <RadioButton Content="暗色" Style="{StaticResource Chip}" GroupName="Theme"
+                                 IsChecked="{Binding ThemeIndex, Converter={StaticResource IndexIs}, ConverterParameter=1}" />
+                </StackPanel>
+
+                <!-- Status and actions -->
+
+                <Border Grid.Row="9" Grid.ColumnSpan="2" CornerRadius="6" Padding="9,6" Margin="0,4,0,0"
+                        Background="{DynamicResource NoticeBackgroundBrush}"
+                        BorderBrush="{DynamicResource NoticeBorderBrush}" BorderThickness="1"
+                        Visibility="{Binding HasStatusMessage, Converter={StaticResource Show}}">
+                    <TextBlock Text="{Binding StatusMessage}" FontSize="11.5" TextWrapping="Wrap"
+                               Foreground="{DynamicResource NoticeTextBrush}" />
+                </Border>
+
+                <StackPanel Grid.Row="10" Grid.ColumnSpan="2" Orientation="Horizontal"
+                            HorizontalAlignment="Right" Margin="0,16,0,0">
+                    <Button Content="测试连接" Style="{StaticResource SecondaryButton}" Margin="0,0,8,0"
+                            IsEnabled="{Binding IsNotBusy}" Click="OnTestConnection" />
+                    <Button Content="保存" Style="{StaticResource PrimaryButton}" Margin="0,0,8,0"
+                            IsDefault="True" IsEnabled="{Binding IsNotBusy}" Click="OnSave" />
+                    <Button Content="取消" Style="{StaticResource SecondaryButton}" IsCancel="True" />
+                </StackPanel>
             </Grid>
-            <TextBlock Text="主机 / 端口；第一版不支持 PAC 与 SOCKS。" Opacity="0.7"
-                       FontSize="11" Margin="0,4,0,0" TextWrapping="Wrap" />
         </StackPanel>
-
-        <!-- Appearance -->
-
-        <TextBlock Grid.Row="7" Grid.Column="0" Text="显示样式" VerticalAlignment="Center"
-                   Margin="0,0,12,8" />
-        <ComboBox Grid.Row="7" Grid.Column="1" Margin="0,0,0,8"
-                  ItemsSource="{Binding IndicatorStyleNames}"
-                  SelectedIndex="{Binding IndicatorStyleIndex}"
-                  ToolTip="圆环把百分比放在环心；进度条横向展开。两者显示的数字相同。" />
-
-        <!-- Status and actions -->
-
-        <TextBlock Grid.Row="8" Grid.ColumnSpan="2" Margin="0,4,0,10"
-                   Text="{Binding StatusMessage}" TextWrapping="Wrap"
-                   Visibility="{Binding HasStatusMessage, Converter={StaticResource Show}}" />
-
-        <StackPanel Grid.Row="9" Grid.ColumnSpan="2" Orientation="Horizontal"
-                    HorizontalAlignment="Right" Margin="0,6,0,0">
-            <Button Content="测试连接" Padding="14,4" Margin="0,0,8,0"
-                    IsEnabled="{Binding IsNotBusy}" Click="OnTestConnection" />
-            <Button Content="保存" Padding="14,4" Margin="0,0,8,0" IsDefault="True"
-                    IsEnabled="{Binding IsNotBusy}" Click="OnSave" />
-            <Button Content="取消" Padding="14,4" IsCancel="True" />
-        </StackPanel>
-    </Grid>
+    </Border>
 </Window>

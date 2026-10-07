@@ -1,7 +1,10 @@
+using System.ComponentModel;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using KiwiTraffic.App.Services;
 using KiwiTraffic.App.ViewModels;
+using KiwiTraffic.Core.Settings;
 
 namespace KiwiTraffic.App.Views;
 
@@ -14,6 +17,9 @@ public partial class SettingsWindow : Window
     private readonly AppServices _services;
     private readonly SettingsViewModel _viewModel;
 
+    /// <summary>The theme in effect when the window opened, to restore on cancel.</summary>
+    private readonly AppTheme _originalTheme;
+
     public SettingsWindow(AppServices services, SettingsViewModel viewModel)
     {
         ArgumentNullException.ThrowIfNull(services);
@@ -21,6 +27,7 @@ public partial class SettingsWindow : Window
 
         _services = services;
         _viewModel = viewModel;
+        _originalTheme = ThemeManager.Current;
 
         InitializeComponent();
 
@@ -30,6 +37,52 @@ public partial class SettingsWindow : Window
         // and kept in sync by hand.
         ApiKeyBox.Password = viewModel.ApiKey;
         ProxyPasswordBox.Password = viewModel.ProxyPassword;
+
+        // The theme chips preview their choice immediately - being able to see
+        // it beats reading a label.
+        _viewModel.PropertyChanged += OnViewModelPropertyChanged;
+    }
+
+    /// <summary>
+    /// A borderless dialog owned by an always-on-top widget has to be on top
+    /// too, or it would open behind the thing that opened it.
+    /// </summary>
+    protected override void OnSourceInitialized(EventArgs e)
+    {
+        base.OnSourceInitialized(e);
+
+        if (Owner is { Topmost: true })
+        {
+            Topmost = true;
+        }
+    }
+
+    protected override void OnClosing(CancelEventArgs e)
+    {
+        // Covers Cancel, the title-bar ✕ and Esc alike: anything other than a
+        // confirmed save puts the previous theme back.
+        if (DialogResult != true)
+        {
+            ThemeManager.Apply(_originalTheme);
+        }
+
+        base.OnClosing(e);
+    }
+
+    private void OnViewModelPropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName == nameof(SettingsViewModel.SelectedTheme))
+        {
+            ThemeManager.Apply(_viewModel.SelectedTheme);
+        }
+    }
+
+    private void OnTitleBarMouseDown(object sender, MouseButtonEventArgs e)
+    {
+        if (e.ChangedButton == MouseButton.Left)
+        {
+            DragMove();
+        }
     }
 
     private void OnApiKeyPasswordChanged(object sender, RoutedEventArgs e)
@@ -45,18 +98,6 @@ public partial class SettingsWindow : Window
         if (DataContext is SettingsViewModel viewModel)
         {
             viewModel.ProxyPassword = ProxyPasswordBox.Password;
-        }
-    }
-
-    /// <summary>
-    /// Leaving the revealed state: whatever was typed into the plain text box
-    /// has to be carried back into the masked one.
-    /// </summary>
-    private void OnRevealApiKeyToggled(object sender, RoutedEventArgs e)
-    {
-        if (sender is CheckBox { IsChecked: false } && DataContext is SettingsViewModel viewModel)
-        {
-            ApiKeyBox.Password = viewModel.ApiKey;
         }
     }
 

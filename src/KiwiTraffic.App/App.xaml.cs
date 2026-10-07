@@ -84,6 +84,9 @@ public partial class App : Application
             return;
         }
 
+        // Before any window exists, so nothing flashes the wrong palette.
+        ThemeManager.Apply(settings.Theme);
+
         // A key kept for a different VPS counts as no key at all, rather than
         // being quietly sent to the wrong account.
         var apiKey = credentials?.ApiKeyBelongsTo(settings) == true ? credentials.ApiKey : null;

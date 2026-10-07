@@ -1,0 +1,40 @@
+<!--
+    Dark palette. Keys mirror Light.xaml exactly; the two are swapped wholesale.
+    The accents are lightened a little so they keep their contrast against a
+    dark surface instead of going muddy.
+-->
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!-- Surfaces -->
+    <SolidColorBrush x:Key="SurfaceBrush" Color="#1E1E22" />
+    <SolidColorBrush x:Key="SurfaceBorderBrush" Color="#33333B" />
+    <SolidColorBrush x:Key="ChromeBrush" Color="#26262C" />
+    <SolidColorBrush x:Key="TrackBrush" Color="#3A3A43" />
+    <SolidColorBrush x:Key="InputBackgroundBrush" Color="#26262C" />
+    <SolidColorBrush x:Key="InputBorderBrush" Color="#3E3E47" />
+    <SolidColorBrush x:Key="HoverBrush" Color="#2E2E36" />
+
+    <!-- Text -->
+    <SolidColorBrush x:Key="PrimaryTextBrush" Color="#F2F2F5" />
+    <SolidColorBrush x:Key="SecondaryTextBrush" Color="#B2B2BC" />
+    <SolidColorBrush x:Key="FaintTextBrush" Color="#84848E" />
+
+    <!-- Attention -->
+    <SolidColorBrush x:Key="NoticeBackgroundBrush" Color="#3A2F14" />
+    <SolidColorBrush x:Key="NoticeBorderBrush" Color="#6B5410" />
+    <SolidColorBrush x:Key="NoticeTextBrush" Color="#F0D9A0" />
+
+    <!-- Gauge accents -->
+    <SolidColorBrush x:Key="AccentNormalBrush" Color="#5AA2FF" />
+    <SolidColorBrush x:Key="AccentWarningBrush" Color="#F0B440" />
+    <SolidColorBrush x:Key="AccentCriticalBrush" Color="#FF6B70" />
+
+    <!-- The dark theme's accents are light, so the text on them is dark. -->
+    <SolidColorBrush x:Key="OnAccentTextBrush" Color="#10161F" />
+
+    <!-- Darker and stronger: a pale shadow is invisible on a dark desktop. -->
+    <DropShadowEffect x:Key="SurfaceShadow" BlurRadius="18" ShadowDepth="2" Direction="270"
+                      Opacity="0.55" Color="#000000" />
+
+</ResourceDictionary>
