@@ -73,21 +73,21 @@
 
                 <!-- Connection -->
 
-                <TextBlock Grid.Row="0" Grid.Column="0" Text="别名" VerticalAlignment="Center"
-                           Margin="0,0,12,6" Foreground="{DynamicResource SecondaryTextBrush}" />
+                <TextBlock Grid.Row="0" Grid.Column="0" Text="别名"
+                           Style="{StaticResource FieldLabel}" />
                 <TextBox Grid.Row="0" Grid.Column="1" Margin="0,0,0,10"
                          Style="{StaticResource RoundedTextBox}"
                          Text="{Binding Alias, UpdateSourceTrigger=PropertyChanged}"
                          ToolTip="可选，仅用于显示" />
 
-                <TextBlock Grid.Row="1" Grid.Column="0" Text="VEID" VerticalAlignment="Center"
-                           Margin="0,0,12,6" Foreground="{DynamicResource SecondaryTextBrush}" />
+                <TextBlock Grid.Row="1" Grid.Column="0" Text="VEID"
+                           Style="{StaticResource FieldLabel}" />
                 <TextBox Grid.Row="1" Grid.Column="1" Margin="0,0,0,10"
                          Style="{StaticResource RoundedTextBox}"
                          Text="{Binding VeidText, UpdateSourceTrigger=PropertyChanged}" />
 
-                <TextBlock Grid.Row="2" Grid.Column="0" Text="API Key" VerticalAlignment="Center"
-                           Margin="0,0,12,6" Foreground="{DynamicResource SecondaryTextBrush}" />
+                <TextBlock Grid.Row="2" Grid.Column="0" Text="API Key"
+                           Style="{StaticResource FieldLabel}" />
                 <Grid Grid.Row="2" Grid.Column="1" Margin="0,0,0,6">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*" />
@@ -118,8 +118,8 @@
 
                 <!-- Proxy -->
 
-                <TextBlock Grid.Row="5" Grid.Column="0" Text="代理" VerticalAlignment="Center"
-                           Margin="0,0,12,6" Foreground="{DynamicResource SecondaryTextBrush}" />
+                <TextBlock Grid.Row="5" Grid.Column="0" Text="代理"
+                           Style="{StaticResource FieldLabel}" />
                 <StackPanel Grid.Row="5" Grid.Column="1" Orientation="Horizontal" Margin="0,0,0,6">
                     <RadioButton Content="系统默认" Style="{StaticResource Chip}" GroupName="Proxy"
                                  IsChecked="{Binding ProxyModeIndex, Converter={StaticResource IndexIs}, ConverterParameter=0}" />
@@ -162,8 +162,8 @@
 
                 <!-- Appearance -->
 
-                <TextBlock Grid.Row="7" Grid.Column="0" Text="显示样式" VerticalAlignment="Center"
-                           Margin="0,0,12,6" Foreground="{DynamicResource SecondaryTextBrush}" />
+                <TextBlock Grid.Row="7" Grid.Column="0" Text="显示样式"
+                           Style="{StaticResource FieldLabel}" />
                 <StackPanel Grid.Row="7" Grid.Column="1" Orientation="Horizontal" Margin="0,0,0,6">
                     <RadioButton Content="圆环" Style="{StaticResource Chip}" GroupName="Indicator"
                                  IsChecked="{Binding IndicatorStyleIndex, Converter={StaticResource IndexIs}, ConverterParameter=0}" />
@@ -171,8 +171,8 @@
                                  IsChecked="{Binding IndicatorStyleIndex, Converter={StaticResource IndexIs}, ConverterParameter=1}" />
                 </StackPanel>
 
-                <TextBlock Grid.Row="8" Grid.Column="0" Text="主题" VerticalAlignment="Center"
-                           Margin="0,0,12,6" Foreground="{DynamicResource SecondaryTextBrush}" />
+                <TextBlock Grid.Row="8" Grid.Column="0" Text="主题"
+                           Style="{StaticResource FieldLabel}" />
                 <StackPanel Grid.Row="8" Grid.Column="1" Orientation="Horizontal" Margin="0,0,0,6">
                     <RadioButton Content="明亮" Style="{StaticResource Chip}" GroupName="Theme"
                                  IsChecked="{Binding ThemeIndex, Converter={StaticResource IndexIs}, ConverterParameter=0}" />

@@ -116,6 +116,15 @@
         </Setter>
     </Style>
 
+    <!-- Form label. Right-aligned so every field starts at the same x even
+         though the labels differ in length. -->
+    <Style x:Key="FieldLabel" TargetType="TextBlock">
+        <Setter Property="Foreground" Value="{DynamicResource SecondaryTextBrush}" />
+        <Setter Property="HorizontalAlignment" Value="Right" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+        <Setter Property="Margin" Value="0,0,10,6" />
+    </Style>
+
     <!-- Text input -->
 
     <!-- One height for every single-line input, so rows line up and stay
@@ -124,7 +133,7 @@
         <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}" />
         <Setter Property="CaretBrush" Value="{DynamicResource PrimaryTextBrush}" />
         <Setter Property="SelectionBrush" Value="{DynamicResource AccentNormalBrush}" />
-        <Setter Property="Height" Value="30" />
+        <Setter Property="Height" Value="28" />
         <Setter Property="VerticalContentAlignment" Value="Center" />
         <Setter Property="Padding" Value="8,0" />
         <Setter Property="Template">
@@ -156,7 +165,7 @@
         <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}" />
         <Setter Property="CaretBrush" Value="{DynamicResource PrimaryTextBrush}" />
         <Setter Property="SelectionBrush" Value="{DynamicResource AccentNormalBrush}" />
-        <Setter Property="Height" Value="30" />
+        <Setter Property="Height" Value="28" />
         <Setter Property="VerticalContentAlignment" Value="Center" />
         <Setter Property="Padding" Value="8,0" />
         <Setter Property="Template">
