@@ -24,15 +24,28 @@ public enum BytePrefixStyle
 /// </remarks>
 public static class ByteSizeFormatter
 {
+    /// <summary>
+    /// The value at which the next unit is used <em>regardless of the divisor</em>.
+    /// </summary>
+    /// <remarks>
+    /// Binary prefixes divide by 1024 but step up at 1000. That is deliberate:
+    /// it avoids readings like "1023.9 MiB", and it keeps us in step with
+    /// provider panels - KiwiVM reports a quota of 1000 GiB and displays it as
+    /// "1 TB", so dividing by 1024 alone would show "1000.0 GiB" for the same
+    /// thing. The label stays binary (TiB, not TB); only the step point moves.
+    /// </remarks>
+    private const decimal SwitchThreshold = 1000m;
+
     private static readonly string[] SiUnits = ["B", "KB", "MB", "GB", "TB", "PB", "EB"];
     private static readonly string[] IecUnits = ["B", "KiB", "MiB", "GiB", "TiB", "PiB", "EiB"];
 
     /// <summary>
     /// Formats <paramref name="bytes"/> using the largest unit that keeps the
-    /// value at or above 1, with a fixed number of fraction digits.
+    /// value at or above <see cref="SwitchThreshold"/>, with a fixed number of
+    /// fraction digits.
     /// </summary>
     /// <param name="bytes">A non-negative byte count.</param>
-    /// <param name="style">SI (1000) or IEC (1024) prefixes.</param>
+    /// <param name="style">SI (divide by 1000) or IEC (divide by 1024) prefixes.</param>
     /// <param name="decimals">Fraction digits for every unit except plain bytes.</param>
     public static string Format(decimal bytes, BytePrefixStyle style, int decimals = 1)
     {
@@ -45,7 +58,7 @@ public static class ByteSizeFormatter
 
         var index = 0;
         var value = bytes;
-        while (value >= step && index < units.Length - 1)
+        while (value >= SwitchThreshold && index < units.Length - 1)
         {
             value /= step;
             index++;

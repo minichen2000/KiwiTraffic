@@ -126,6 +126,9 @@ shell 用 **pwsh 7**，不要用 Windows PowerShell 5.1。
   `Themes/Controls.xaml`，由 `ThemeManager.Apply` 换字典，不重建窗口。
 - **应用图标是生成的**：改图标外观要改 `scripts/make-app-icon.ps1` 再跑一次，
   不要直接手改 `Assets/app.ico`。它同时是 EXE 图标和两个窗口的图标来源。
+- **流量单位是 1024 进制、在 1000 处进位、标签用 TiB/GiB**：KiwiVM 面板把 1000 GiB
+  写作 "1 TB"，我们按同样方式除但用诚实的单位名。不要改回十进制，也不要为了
+  "和面板一模一样"而把 TiB 标成 TB —— 见 `docs/api-contract.md` 第 8 节。
 - **位图/图标不手绘进仓库**：托盘图标在运行时画（还按用量变色），
   应用图标由脚本生成，两者都不依赖设计稿。
 - **默认窗口位置用主显示器工作区**（`SystemParameters.WorkArea`），虚拟桌面只用于

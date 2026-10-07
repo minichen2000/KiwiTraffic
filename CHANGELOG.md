@@ -56,9 +56,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The M1 simulated-data preview has been replaced by real data. There is no
   simulated mode any more.
 - Traffic amounts are now shown in binary units (TiB / GiB) instead of decimal
-  ones (TB / GB). The KiwiVM panel divides by 1024 but labels the result TB, so
-  a 1 TiB quota appeared as "1.1 TB" here while the panel said "1 TB". The
-  numbers now agree with the panel; the labels are the correct binary ones.
+  ones (TB / GB), dividing by 1024 and stepping up to the next unit at 1000.
+  The KiwiVM panel counts in binary units but labels them TB: it reports a
+  quota of 1000 GiB and shows "1 TB", which this used to render as "1.1 TB".
+  The reading now agrees with the panel, and the unit name is the correct
+  binary one rather than a decimal one applied to a binary quantity.
 
 ### Known limitations
 

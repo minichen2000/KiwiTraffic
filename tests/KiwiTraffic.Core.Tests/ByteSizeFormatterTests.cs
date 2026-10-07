@@ -18,14 +18,43 @@ public class ByteSizeFormatterTests
     }
 
     [Theory]
-    [InlineData(1023, "1023 B")]
+    [InlineData(999, "999 B")]
+    [InlineData(1000, "1.0 KiB")]
     [InlineData(1024, "1.0 KiB")]
     [InlineData(1_048_576, "1.0 MiB")]
     [InlineData(1_073_741_824, "1.0 GiB")]
     [InlineData(1_099_511_627_776, "1.0 TiB")]
-    public void IecStyle_Uses1024Powers(decimal bytes, string expected)
+    public void IecStyle_DividesBy1024(decimal bytes, string expected)
     {
         Assert.Equal(expected, ByteSizeFormatter.Format(bytes, BytePrefixStyle.Iec));
+    }
+
+    [Fact]
+    public void IecStyle_StepsUpAt1000_NotAt1024()
+    {
+        // Dividing by 1024 but stepping up at 1024 would print "1023.9 MiB" for
+        // the value just below a unit, which nobody wants to read.
+        Assert.Equal("999.0 MiB", ByteSizeFormatter.Format(999m * 1024 * 1024, BytePrefixStyle.Iec));
+        Assert.Equal("1.0 GiB", ByteSizeFormatter.Format(1000m * 1024 * 1024, BytePrefixStyle.Iec));
+    }
+
+    [Fact]
+    public void IecStyle_MatchesHowTheKiwiVmPanelDescribesAQuota()
+    {
+        // Live account: plan_monthly_data is 1000 x 1024^3 bytes and the panel
+        // calls that "1 TB". Dividing by 1024 and stepping up at 1000 gives the
+        // same reading in an honest unit.
+        const decimal kiwiVmOneTerabyteQuota = 1000m * 1024 * 1024 * 1024;
+
+        Assert.Equal("1.0 TiB", ByteSizeFormatter.Format(kiwiVmOneTerabyteQuota, BytePrefixStyle.Iec));
+
+        // ... even though it is not a whole tebibyte.
+        Assert.Equal(0.977m, Math.Round(kiwiVmOneTerabyteQuota / (1024m * 1024 * 1024 * 1024), 3));
+
+        // The same quantity in decimal units is where the confusing "1.1 TB"
+        // came from - that reading is arithmetically right but matches nothing
+        // the provider shows, which is why SI is not used for this.
+        Assert.Equal("1.1 TB", ByteSizeFormatter.Format(kiwiVmOneTerabyteQuota, BytePrefixStyle.Si));
     }
 
     [Fact]
