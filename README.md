@@ -1,0 +1,99 @@
+# KiwiTraffic
+
+A small always-on Windows desktop widget that shows how much of the current
+billing-cycle traffic your BandwagonHost (KiwiVM) VPS has used — without
+opening the control panel.
+
+> **Status: early development.** Only project scaffolding and the pure
+> calculation layer exist so far. There is no working widget yet, and the
+> KiwiVM API data contract has **not** been verified against a live account.
+> See [PROGRESS.md](PROGRESS.md) for the current state.
+
+## Planned features (v1)
+
+- Large readout of the used percentage for the current cycle, plus used /
+  quota / remaining traffic and the next reset time.
+- Always-on-top floating widget and a system tray icon; drag to move, position
+  remembered in a DPI-aware way.
+- Automatic and manual refresh, with the time of the last successful update
+  shown relative to now.
+- Threshold alerts at 80 % / 90 % / 95 %, de-duplicated per account and cycle.
+- Explicit states for offline / rate limited / invalid key / stale data —
+  an error is never rendered as 0 % usage.
+- API key entered locally and encrypted with Windows DPAPI (CurrentUser scope);
+  never written to disk in plaintext, never logged.
+
+## Not in v1
+
+VPS power / reinstall / snapshot / migrate operations, multi-VPS aggregation,
+account sync, mobile app, web dashboard, real-time network speed, CPU / memory /
+SSH monitoring, history charts, usage forecasting, auto-updater, installers,
+commercial code signing.
+
+## Requirements
+
+- Windows 10 or 11 (x64)
+- [.NET SDK 10.0.4xx](https://dotnet.microsoft.com/download/dotnet/10.0) to build
+  (pinned in `global.json`)
+- PowerShell 7 (`pwsh`) to run the build script
+- Node.js is **optional** — `package.json` only wraps the build commands
+
+No .NET runtime is needed on the target machine: the published artifact is a
+self-contained single-file EXE.
+
+## Build
+
+```powershell
+# Quick build for daily verification -> dist/fast/KiwiTraffic.exe
+npm run build:exe
+
+# Full quality gates + release build -> dist/release/KiwiTraffic.exe
+npm run build:release
+
+# Tests only
+dotnet test
+```
+
+Without Node.js, call the script directly:
+
+```powershell
+pwsh -File scripts/build.ps1 -Configuration fast
+pwsh -File scripts/build.ps1 -Configuration release
+```
+
+See [BUILD.md](BUILD.md) for details.
+
+## Usage
+
+1. Run `KiwiTraffic.exe`. It has no installer — put it wherever you like.
+2. On first launch it asks for a VPS alias (optional), the VEID and the API
+   key. Both are found in your KiwiVM control panel under *API*.
+3. The widget appears in the bottom-right of the primary display work area and
+   stays in the system tray. Closing the window only hides it; use
+   *Exit* in the tray menu to quit.
+
+## Data & privacy
+
+Everything runs locally. There is no telemetry, no cloud sync and no network
+traffic other than the queries to the KiwiVM API.
+
+Data lives in `%LOCALAPPDATA%\KiwiTraffic\`:
+
+| File | Contents |
+| --- | --- |
+| `settings.json` | alias, VEID, proxy mode, refresh interval, window position, alert settings |
+| `credentials.dat` | API key (and proxy password, if any), encrypted with DPAPI |
+| `cache.json` | last valid normalized snapshot |
+| `notifications.json` | confirmed cycle and already-fired thresholds |
+| `logs/` | size-capped, redacted diagnostic log with rotation |
+
+To remove all local data, quit the widget, delete that directory, and disable
+*Start with Windows* in the settings first (so no stale startup entry remains).
+
+The API key is encrypted with DPAPI `CurrentUser` scope: it cannot be decrypted
+after moving the EXE to another machine or switching Windows user. The widget
+will ask for the key again in that case.
+
+## License
+
+No license has been chosen yet.

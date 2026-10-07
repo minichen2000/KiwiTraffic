@@ -1,0 +1,43 @@
+name: Release
+
+# Release is triggered *only* by pushing a version tag, never by a normal push.
+# The build runs in the cloud (no China mirrors here on purpose — the runners
+# are outside the mainland network and use the default feeds).
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: |
+            10.0.x
+
+      - name: Verify tag matches project version
+        shell: pwsh
+        run: |
+          $tag = "${{ github.ref_name }}" -replace '^v', ''
+          $props = [xml](Get-Content Directory.Build.props)
+          $version = $props.Project.PropertyGroup.Version | Where-Object { $_ }
+          if ($tag -ne $version) {
+            throw "Tag v$tag does not match <Version>$version</Version> in Directory.Build.props"
+          }
+
+      - name: Build, test and package
+        shell: pwsh
+        run: ./scripts/build.ps1 -Configuration release
+
+      - name: Upload release asset
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/release/*.exe
+          generate_release_notes: true

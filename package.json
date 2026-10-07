@@ -1,0 +1,14 @@
+{
+  "name": "kiwi-traffic",
+  "private": true,
+  "description": "Command wrapper only. The real build logic lives in scripts/build.ps1 and the .NET projects; the product version is defined in Directory.Build.props.",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "build:exe": "pwsh -NoProfile -File scripts/build.ps1 -Configuration fast",
+    "build:release": "pwsh -NoProfile -File scripts/build.ps1 -Configuration release",
+    "test": "dotnet test",
+    "clean": "pwsh -NoProfile -File scripts/build.ps1 -Configuration fast -Clean"
+  }
+}

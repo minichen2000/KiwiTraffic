@@ -1,0 +1,29 @@
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+[*.cs]
+indent_style = space
+indent_size = 4
+
+[*.{csproj,props,targets,xaml,slnx}]
+indent_style = space
+indent_size = 2
+
+[*.{json,yml,yaml,md}]
+indent_style = space
+indent_size = 2
+
+[*.ps1]
+indent_style = space
+indent_size = 4
+
+# Test method names are written as sentences with underscores on purpose
+# ("Used250Of1000_Gives25PercentAnd750Remaining"). Production code still gets
+# the rule - see the scope above.
+[tests/**/*.cs]
+dotnet_diagnostic.CA1707.severity = none

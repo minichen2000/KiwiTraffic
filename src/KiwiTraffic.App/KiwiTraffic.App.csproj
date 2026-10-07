@@ -1,0 +1,48 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <!-- Windows Forms is pulled in for the tray icon (NotifyIcon) only. -->
+    <UseWindowsForms>true</UseWindowsForms>
+    <AssemblyName>KiwiTraffic</AssemblyName>
+    <RootNamespace>KiwiTraffic.App</RootNamespace>
+  </PropertyGroup>
+
+  <!--
+    Green single-file deliverable. These live here rather than on the publish
+    command line so that no invocation can accidentally produce a
+    framework-dependent or multi-file artifact.
+
+    WPF trimming and Native AOT are intentionally not enabled (unverified for
+    WPF, and known to break its reflection paths) - see BUILD.md.
+  -->
+  <PropertyGroup>
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+    <SelfContained>true</SelfContained>
+    <PublishSingleFile>true</PublishSingleFile>
+    <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
+    <EnableCompressionInSingleFile>false</EnableCompressionInSingleFile>
+    <PublishTrimmed>false</PublishTrimmed>
+    <PublishAot>false</PublishAot>
+    <PublishReadyToRun Condition="'$(PublishReadyToRun)' == ''">false</PublishReadyToRun>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!--
+      Windows Forms is enabled only for the tray icon (M3). Its implicit global
+      usings collide with WPF types (Application, MessageBox, ...), so they are
+      dropped here and WinForms types get qualified explicitly at the few call
+      sites that need them.
+    -->
+    <Using Remove="System.Windows.Forms" />
+    <Using Remove="System.Drawing" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../KiwiTraffic.Core/KiwiTraffic.Core.csproj" />
+    <ProjectReference Include="../KiwiTraffic.Infrastructure/KiwiTraffic.Infrastructure.csproj" />
+  </ItemGroup>
+
+</Project>

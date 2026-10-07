@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    Windows-only: DPAPI (ProtectedData) and the Windows/registry-backed
+    auto-start entry live here.
+  -->
+  <PropertyGroup>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <RootNamespace>KiwiTraffic.Infrastructure</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../KiwiTraffic.Core/KiwiTraffic.Core.csproj" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,48 @@
+# --- .NET build output ---
+[Bb]in/
+[Oo]bj/
+[Dd]ebug/
+[Rr]elease/
+artifacts/
+*.binlog
+*.user
+*.suo
+*.userprefs
+
+# --- Published artifacts ---
+dist/
+
+# --- IDE ---
+.vs/
+.idea/
+.vscode/
+
+# --- Test / coverage ---
+[Tt]est[Rr]esult*/
+*.trx
+*.coverage
+coverage*.xml
+coverage-report/
+
+# --- NuGet ---
+*.nupkg
+*.snupkg
+packages/
+
+# --- Node (package.json is only a command wrapper, no real deps) ---
+node_modules/
+
+# --- Runtime data / secrets (normally live under %LOCALAPPDATA%\KiwiTraffic, never in the repo) ---
+credentials.dat
+settings.json
+cache.json
+notifications.json
+.env
+.env.*
+!.env.example
+*_token*
+*_secret*
+
+# --- Logs ---
+*.log
+logs/

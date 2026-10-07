@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    Pure domain layer. Deliberately platform-neutral (net10.0, not -windows):
+    it must stay unit-testable without any Windows-only API surface.
+  -->
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <RootNamespace>KiwiTraffic.Core</RootNamespace>
+  </PropertyGroup>
+
+</Project>

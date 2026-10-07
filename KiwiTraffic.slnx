@@ -1,0 +1,11 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/KiwiTraffic.App/KiwiTraffic.App.csproj" />
+    <Project Path="src/KiwiTraffic.Core/KiwiTraffic.Core.csproj" />
+    <Project Path="src/KiwiTraffic.Infrastructure/KiwiTraffic.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/KiwiTraffic.Core.Tests/KiwiTraffic.Core.Tests.csproj" />
+    <Project Path="tests/KiwiTraffic.Infrastructure.Tests/KiwiTraffic.Infrastructure.Tests.csproj" />
+  </Folder>
+</Solution>

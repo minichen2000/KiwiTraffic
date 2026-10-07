@@ -1,0 +1,35 @@
+<Project>
+
+  <!--
+    Single source of truth for the product version. The release workflow checks
+    that the pushed tag matches this value; scripts/build.ps1 reads it too.
+  -->
+  <PropertyGroup>
+    <Version>0.1.0</Version>
+    <Authors>minichen</Authors>
+    <Product>KiwiTraffic</Product>
+    <Description>BandwagonHost (KiwiVM) VPS traffic desktop widget for Windows.</Description>
+    <RepositoryType>git</RepositoryType>
+    <NeutralLanguage>zh-Hans</NeutralLanguage>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <InvariantGlobalization>false</InvariantGlobalization>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+    <AccelerateBuildsInVisualStudio>true</AccelerateBuildsInVisualStudio>
+    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+    <!-- Commit the generated packages.lock.json files; see BUILD.md. -->
+    <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
+  </PropertyGroup>
+
+  <!-- Quality gates are only enforced for the release build. -->
+  <PropertyGroup Condition="'$(Configuration)' == 'Release'">
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <AnalysisLevel>latest-recommended</AnalysisLevel>
+    <EnableNETAnalyzers>true</EnableNETAnalyzers>
+  </PropertyGroup>
+
+</Project>
