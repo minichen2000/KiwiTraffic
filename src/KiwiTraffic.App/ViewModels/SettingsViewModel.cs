@@ -294,14 +294,14 @@ public sealed class SettingsViewModel : ObservableObject
     private static string DescribeSuccess(KiwiVmQueryResult result)
     {
         var usage = result.Snapshot!.ToUsage();
-        var used = ByteSizeFormatter.Format(usage.UsedBytes, BytePrefixStyle.Si);
+        var used = ByteSizeFormatter.Format(usage.UsedBytes, DisplayFormat.BytePrefix);
 
         if (usage.UsedPercent is not { } percent)
         {
             return $"连接成功。已用 {used}，额度未知。";
         }
 
-        var quota = ByteSizeFormatter.Format(usage.QuotaBytes!.Value, BytePrefixStyle.Si);
+        var quota = ByteSizeFormatter.Format(usage.QuotaBytes!.Value, DisplayFormat.BytePrefix);
 
         return $"连接成功。已用 {used} / {quota}（{percent.ToString("F1", CultureInfo.InvariantCulture)}%）。";
     }

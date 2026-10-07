@@ -29,6 +29,18 @@ public class ByteSizeFormatterTests
     }
 
     [Fact]
+    public void TheTwoStylesDisagreeOnAKiwiVmQuota_WhichIsWhyTheChoiceIsPinned()
+    {
+        // 2^40 bytes, the quota a KiwiVM "1 TB" plan reports. The panel shows
+        // "1 TB" for it, so the binary reading is the one that matches; the
+        // decimal reading would say 1.1 TB. See DisplayFormat.BytePrefix.
+        const decimal oneTebibyte = 1_099_511_627_776m;
+
+        Assert.Equal("1.0 TiB", ByteSizeFormatter.Format(oneTebibyte, BytePrefixStyle.Iec));
+        Assert.Equal("1.1 TB", ByteSizeFormatter.Format(oneTebibyte, BytePrefixStyle.Si));
+    }
+
+    [Fact]
     public void IecStyle_NeverLabelsBinaryUnitsAsDecimal()
     {
         // 1 GiB is the classic case where a decimal label would be wrong.

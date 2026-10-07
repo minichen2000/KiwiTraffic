@@ -14,13 +14,6 @@ namespace KiwiTraffic.App.ViewModels;
 /// </remarks>
 public sealed class WidgetViewModel : ObservableObject
 {
-    /// <summary>
-    /// SI prefixes for now. Which family matches the KiwiVM panel is an open
-    /// contract question (see <c>docs/api-contract.md</c>); until it is
-    /// answered it stays a single constant here rather than a guess per call.
-    /// </summary>
-    private const BytePrefixStyle PrefixStyle = BytePrefixStyle.Si;
-
     private string _statusMessage = string.Empty;
     private bool _isBusy;
 
@@ -108,13 +101,13 @@ public sealed class WidgetViewModel : ObservableObject
 
         ProgressValue = (double)usage.ProgressValue;
 
-        var used = ByteSizeFormatter.Format(usage.UsedBytes, PrefixStyle);
+        var used = ByteSizeFormatter.Format(usage.UsedBytes, DisplayFormat.BytePrefix);
         UsedQuotaText = usage.QuotaBytes is { } quota
-            ? $"已用 {used} / {ByteSizeFormatter.Format(quota, PrefixStyle)}"
+            ? $"已用 {used} / {ByteSizeFormatter.Format(quota, DisplayFormat.BytePrefix)}"
             : $"已用 {used} / 额度未知";
 
         RemainingText = usage.RemainingBytes is { } remaining
-            ? $"剩余 {ByteSizeFormatter.Format(remaining, PrefixStyle)}"
+            ? $"剩余 {ByteSizeFormatter.Format(remaining, DisplayFormat.BytePrefix)}"
             : "剩余未知";
 
         ResetText = DescribeReset(snapshot.NextResetAtUtc, now);
