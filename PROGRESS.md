@@ -165,6 +165,20 @@
 - 设置窗口的「测试连接」按预期工作（用未保存的值查询）。
 - 设置窗口的别名栏支持较长的自取名字（含套餐标识），会被截断显示。
 
+## 首次发布 v0.1.0（2026-10-07）
+
+- **GitHub**：<https://github.com/minichen2000/KiwiTraffic>（公开）
+- **Gitee**：`minichen2000/KiwiTraffic`（**私有** —— Gitee 拒绝转公开，
+  返回 422「该仓库不支持设置为公开仓库」，通常是账号未通过实名认证；API 层改不了）
+- `main` 与 tag `v0.1.0` 双推。
+- Release 由 tag 触发 GitHub Actions 云端构建：校验 tag 与 `Directory.Build.props` 一致 →
+  跑 `scripts/build.ps1 -Configuration release`（内含全部测试）→ 上传 `dist/release/KiwiTraffic.exe`。
+  Release 正文是从 CHANGELOG 提取的对应版本段落，不用自动生成的提交列表。
+- 产物：`KiwiTraffic.exe`，**77.1 MB**（启用单文件压缩后）。
+
+首次构建**失败过一次**（时区问题，见下面第 14 条的后续）。因为失败的构建没走到上传步骤，
+`v0.1.0` 这个 tag 被 force 移动到修好的提交上重推 —— 没有已发布内容被覆盖。
+
 ## 首次发布准备（2026-10-07）
 
 - **脱敏**：计划明确禁止把真实 VEID、主机名、账户信息写进公共文档。递交前扫了一遍
