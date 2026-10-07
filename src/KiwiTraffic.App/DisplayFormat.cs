@@ -11,9 +11,9 @@ public static class DisplayFormat
     /// Binary (IEC) prefixes: divide by 1024 and label the result TiB / GiB.
     /// </summary>
     /// <remarks>
-    /// Settled against a live account on 2026-10-07 (VEID 2213202, plan
-    /// KVMV5-20G-1G-1T-CA-CN2GIA). The API reports the quota as
-    /// 1000 x 1024^3 bytes and the panel calls that "1 TB", so KiwiVM counts in
+    /// Settled against a live account on 2026-10-07. The API reports that
+    /// account's quota as 1000 x 1024^3 bytes and the panel calls that "1 TB",
+    /// so KiwiVM counts in
     /// binary units and labels them TB - dividing by 1000 instead shows
     /// "1.1 TB", which matches nothing the provider displays.
     /// <para>

@@ -185,7 +185,7 @@ total_abuse_points, max_abuse_points, error`
 
 ### 已定案：单位口径（2026-10-07，真实账号）
 
-对照：VEID 2213202，套餐 `KVMV5-20G-1G-1T-CA-CN2GIA`。
+对照：真实账号（VEID 与套餐号按项目规则不写入仓库）。
 
 **事实**：`plan_monthly_data` = **1 073 741 824 000 字节 = 1000 × 1024³**，
 面板把这一数量写作 **1 TB**。
