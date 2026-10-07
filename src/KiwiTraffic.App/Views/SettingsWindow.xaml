@@ -4,7 +4,7 @@
         xmlns:conv="clr-namespace:KiwiTraffic.App.Converters"
         Title="{Binding WindowTitle}"
         Icon="/Assets/app.ico"
-        Width="540"
+        Width="480"
         SizeToContent="Height"
         WindowStyle="None"
         AllowsTransparency="True"
@@ -32,7 +32,7 @@
 
             <!-- Title bar -->
             <Border CornerRadius="11,11,0,0" Background="{DynamicResource ChromeBrush}"
-                    Padding="0,9" MouseLeftButtonDown="OnTitleBarMouseDown">
+                    Padding="0,7" MouseLeftButtonDown="OnTitleBarMouseDown">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto" />
@@ -52,7 +52,7 @@
                 </Grid>
             </Border>
 
-            <Grid Margin="18,16,18,16">
+            <Grid Margin="14,12,14,12">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto" />
                     <ColumnDefinition Width="*" />
@@ -74,21 +74,21 @@
                 <!-- Connection -->
 
                 <TextBlock Grid.Row="0" Grid.Column="0" Text="别名" VerticalAlignment="Center"
-                           Margin="0,0,14,10" Foreground="{DynamicResource SecondaryTextBrush}" />
+                           Margin="0,0,12,6" Foreground="{DynamicResource SecondaryTextBrush}" />
                 <TextBox Grid.Row="0" Grid.Column="1" Margin="0,0,0,10"
                          Style="{StaticResource RoundedTextBox}"
                          Text="{Binding Alias, UpdateSourceTrigger=PropertyChanged}"
                          ToolTip="可选，仅用于显示" />
 
                 <TextBlock Grid.Row="1" Grid.Column="0" Text="VEID" VerticalAlignment="Center"
-                           Margin="0,0,14,10" Foreground="{DynamicResource SecondaryTextBrush}" />
+                           Margin="0,0,12,6" Foreground="{DynamicResource SecondaryTextBrush}" />
                 <TextBox Grid.Row="1" Grid.Column="1" Margin="0,0,0,10"
                          Style="{StaticResource RoundedTextBox}"
                          Text="{Binding VeidText, UpdateSourceTrigger=PropertyChanged}" />
 
                 <TextBlock Grid.Row="2" Grid.Column="0" Text="API Key" VerticalAlignment="Center"
-                           Margin="0,0,14,10" Foreground="{DynamicResource SecondaryTextBrush}" />
-                <Grid Grid.Row="2" Grid.Column="1" Margin="0,0,0,10">
+                           Margin="0,0,12,6" Foreground="{DynamicResource SecondaryTextBrush}" />
+                <Grid Grid.Row="2" Grid.Column="1" Margin="0,0,0,6">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*" />
                         <ColumnDefinition Width="Auto" />
@@ -108,19 +108,19 @@
                               IsChecked="{Binding IsApiKeyVisible}" />
                 </Grid>
 
-                <CheckBox Grid.Row="3" Grid.Column="1" Margin="0,0,0,6"
+                <CheckBox Grid.Row="3" Grid.Column="1" Margin="0,0,0,2"
                           Content="在本机记住 API Key（使用 Windows DPAPI 加密）"
                           Style="{StaticResource RoundedCheckBox}"
                           IsChecked="{Binding RememberApiKey}" />
 
-                <Separator Grid.Row="4" Grid.ColumnSpan="2" Margin="0,12,0,14"
+                <Separator Grid.Row="4" Grid.ColumnSpan="2" Margin="0,9,0,10"
                            Background="{DynamicResource SurfaceBorderBrush}" />
 
                 <!-- Proxy -->
 
                 <TextBlock Grid.Row="5" Grid.Column="0" Text="代理" VerticalAlignment="Center"
-                           Margin="0,0,14,10" Foreground="{DynamicResource SecondaryTextBrush}" />
-                <StackPanel Grid.Row="5" Grid.Column="1" Orientation="Horizontal" Margin="0,0,0,10">
+                           Margin="0,0,12,6" Foreground="{DynamicResource SecondaryTextBrush}" />
+                <StackPanel Grid.Row="5" Grid.Column="1" Orientation="Horizontal" Margin="0,0,0,6">
                     <RadioButton Content="系统默认" Style="{StaticResource Chip}" GroupName="Proxy"
                                  IsChecked="{Binding ProxyModeIndex, Converter={StaticResource IndexIs}, ConverterParameter=0}" />
                     <RadioButton Content="直连" Style="{StaticResource Chip}" GroupName="Proxy"
@@ -129,7 +129,7 @@
                                  IsChecked="{Binding ProxyModeIndex, Converter={StaticResource IndexIs}, ConverterParameter=2}" />
                 </StackPanel>
 
-                <StackPanel Grid.Row="6" Grid.Column="1" Margin="0,0,0,12"
+                <StackPanel Grid.Row="6" Grid.Column="1" Margin="0,0,0,8"
                             Visibility="{Binding IsManualProxy, Converter={StaticResource Show}}">
                     <Grid Margin="0,0,0,8">
                         <Grid.ColumnDefinitions>
@@ -163,8 +163,8 @@
                 <!-- Appearance -->
 
                 <TextBlock Grid.Row="7" Grid.Column="0" Text="显示样式" VerticalAlignment="Center"
-                           Margin="0,0,14,10" Foreground="{DynamicResource SecondaryTextBrush}" />
-                <StackPanel Grid.Row="7" Grid.Column="1" Orientation="Horizontal" Margin="0,0,0,10">
+                           Margin="0,0,12,6" Foreground="{DynamicResource SecondaryTextBrush}" />
+                <StackPanel Grid.Row="7" Grid.Column="1" Orientation="Horizontal" Margin="0,0,0,6">
                     <RadioButton Content="圆环" Style="{StaticResource Chip}" GroupName="Indicator"
                                  IsChecked="{Binding IndicatorStyleIndex, Converter={StaticResource IndexIs}, ConverterParameter=0}" />
                     <RadioButton Content="进度条" Style="{StaticResource Chip}" GroupName="Indicator"
@@ -172,8 +172,8 @@
                 </StackPanel>
 
                 <TextBlock Grid.Row="8" Grid.Column="0" Text="主题" VerticalAlignment="Center"
-                           Margin="0,0,14,10" Foreground="{DynamicResource SecondaryTextBrush}" />
-                <StackPanel Grid.Row="8" Grid.Column="1" Orientation="Horizontal" Margin="0,0,0,10">
+                           Margin="0,0,12,6" Foreground="{DynamicResource SecondaryTextBrush}" />
+                <StackPanel Grid.Row="8" Grid.Column="1" Orientation="Horizontal" Margin="0,0,0,6">
                     <RadioButton Content="明亮" Style="{StaticResource Chip}" GroupName="Theme"
                                  IsChecked="{Binding ThemeIndex, Converter={StaticResource IndexIs}, ConverterParameter=0}" />
                     <RadioButton Content="暗色" Style="{StaticResource Chip}" GroupName="Theme"
@@ -191,7 +191,7 @@
                 </Border>
 
                 <StackPanel Grid.Row="10" Grid.ColumnSpan="2" Orientation="Horizontal"
-                            HorizontalAlignment="Right" Margin="0,16,0,0">
+                            HorizontalAlignment="Right" Margin="0,12,0,0">
                     <Button Content="测试连接" Style="{StaticResource SecondaryButton}" Margin="0,0,8,0"
                             IsEnabled="{Binding IsNotBusy}" Click="OnTestConnection" />
                     <Button Content="保存" Style="{StaticResource PrimaryButton}" Margin="0,0,8,0"

@@ -38,7 +38,7 @@
         <Setter Property="Foreground" Value="{DynamicResource OnAccentTextBrush}" />
         <Setter Property="FontSize" Value="12.5" />
         <Setter Property="FontWeight" Value="SemiBold" />
-        <Setter Property="Padding" Value="18,6" />
+        <Setter Property="Padding" Value="15,5" />
         <Setter Property="Cursor" Value="Hand" />
         <Setter Property="Template">
             <Setter.Value>
@@ -63,7 +63,7 @@
     <Style x:Key="SecondaryButton" TargetType="Button">
         <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}" />
         <Setter Property="FontSize" Value="12.5" />
-        <Setter Property="Padding" Value="16,6" />
+        <Setter Property="Padding" Value="14,5" />
         <Setter Property="Cursor" Value="Hand" />
         <Setter Property="Template">
             <Setter.Value>
@@ -95,7 +95,7 @@
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="RadioButton">
-                    <Border x:Name="Bd" CornerRadius="13" Padding="13,4" Margin="0,0,6,0"
+                    <Border x:Name="Bd" CornerRadius="12" Padding="11,3" Margin="0,0,6,0"
                             Background="{DynamicResource InputBackgroundBrush}"
                             BorderBrush="{DynamicResource InputBorderBrush}" BorderThickness="1">
                         <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
@@ -118,18 +118,25 @@
 
     <!-- Text input -->
 
+    <!-- One height for every single-line input, so rows line up and stay
+         compact. 30 DIP is a 12 DIP line with a little air around it. -->
     <Style x:Key="RoundedTextBox" TargetType="TextBox">
         <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}" />
         <Setter Property="CaretBrush" Value="{DynamicResource PrimaryTextBrush}" />
         <Setter Property="SelectionBrush" Value="{DynamicResource AccentNormalBrush}" />
-        <Setter Property="Padding" Value="8,5" />
+        <Setter Property="Height" Value="30" />
+        <Setter Property="VerticalContentAlignment" Value="Center" />
+        <Setter Property="Padding" Value="8,0" />
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="TextBox">
                     <Border x:Name="Bd" CornerRadius="6"
                             Background="{DynamicResource InputBackgroundBrush}"
                             BorderBrush="{DynamicResource InputBorderBrush}" BorderThickness="1">
-                        <ScrollViewer x:Name="PART_ContentHost" VerticalAlignment="Center"
+                        <ScrollViewer x:Name="PART_ContentHost" Focusable="False"
+                                      HorizontalScrollBarVisibility="Hidden"
+                                      VerticalScrollBarVisibility="Hidden"
+                                      VerticalAlignment="Center"
                                       Margin="{TemplateBinding Padding}" />
                     </Border>
                     <ControlTemplate.Triggers>
@@ -149,14 +156,19 @@
         <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}" />
         <Setter Property="CaretBrush" Value="{DynamicResource PrimaryTextBrush}" />
         <Setter Property="SelectionBrush" Value="{DynamicResource AccentNormalBrush}" />
-        <Setter Property="Padding" Value="8,5" />
+        <Setter Property="Height" Value="30" />
+        <Setter Property="VerticalContentAlignment" Value="Center" />
+        <Setter Property="Padding" Value="8,0" />
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="PasswordBox">
                     <Border x:Name="Bd" CornerRadius="6"
                             Background="{DynamicResource InputBackgroundBrush}"
                             BorderBrush="{DynamicResource InputBorderBrush}" BorderThickness="1">
-                        <ScrollViewer x:Name="PART_ContentHost" VerticalAlignment="Center"
+                        <ScrollViewer x:Name="PART_ContentHost" Focusable="False"
+                                      HorizontalScrollBarVisibility="Hidden"
+                                      VerticalScrollBarVisibility="Hidden"
+                                      VerticalAlignment="Center"
                                       Margin="{TemplateBinding Padding}" />
                     </Border>
                     <ControlTemplate.Triggers>

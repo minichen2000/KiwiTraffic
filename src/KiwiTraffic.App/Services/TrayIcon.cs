@@ -1,6 +1,7 @@
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
+using System.Drawing.Text;
 using System.IO;
 using System.Text;
 using System.Windows.Forms;
@@ -126,8 +127,9 @@ public sealed partial class TrayIcon : IDisposable
 }
 
 /// <summary>
-/// Draws the tray icon at runtime: a ring tinted by the usage level. No .ico
-/// has to be kept in the repository, and the icon can reflect the reading.
+/// Draws the tray icon at runtime: the same disc-and-initial mark as the
+/// application icon, tinted by the usage level. No .ico has to be kept in the
+/// repository, and the icon can reflect the reading.
 /// </summary>
 internal static class TrayIconArtwork
 {
@@ -143,26 +145,40 @@ internal static class TrayIconArtwork
         using (var graphics = Graphics.FromImage(bitmap))
         {
             graphics.SmoothingMode = SmoothingMode.AntiAlias;
+            graphics.TextRenderingHint = TextRenderingHint.AntiAlias;
             graphics.Clear(Color.Transparent);
 
-            var colour = level switch
+            var inset = 1f;
+            var diameter = Size - (2f * inset);
+
+            using (var disc = new SolidBrush(AccentFor(level)))
             {
-                UsageLevel.Critical => Color.FromArgb(0xE0, 0x45, 0x4A),
-                UsageLevel.Warning => Color.FromArgb(0xE0, 0x9A, 0x2B),
-                _ => Color.FromArgb(0x2D, 0x7F, 0xF9),
+                graphics.FillEllipse(disc, inset, inset, diameter, diameter);
+            }
+
+            // A single initial, not the wordmark: the shell draws the tray icon
+            // at 16 px, where four letters are a smudge.
+            using var font = new Font("Segoe UI", Size * 0.60f, FontStyle.Bold, GraphicsUnit.Pixel);
+            using var ink = new SolidBrush(Color.White);
+            using var format = new StringFormat
+            {
+                Alignment = StringAlignment.Center,
+                LineAlignment = StringAlignment.Center,
             };
 
-            using var pen = new Pen(colour, 5f)
-            {
-                StartCap = LineCap.Round,
-                EndCap = LineCap.Round,
-            };
-
-            graphics.DrawEllipse(pen, 7f, 7f, 18f, 18f);
+            graphics.DrawString("K", font, ink, new RectangleF(0, 0, Size, Size), format);
         }
 
         return new Icon(WrapInIconContainer(bitmap));
     }
+
+    /// <summary>The disc colour carries the same meaning as the widget's gauge.</summary>
+    private static Color AccentFor(UsageLevel level) => level switch
+    {
+        UsageLevel.Critical => Color.FromArgb(0xE0, 0x45, 0x4A),
+        UsageLevel.Warning => Color.FromArgb(0xE0, 0x9A, 0x2B),
+        _ => Color.FromArgb(0x2D, 0x7F, 0xF9),
+    };
 
     /// <summary>
     /// Wraps a bitmap as a single-image .ico holding PNG data.
