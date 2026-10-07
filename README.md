@@ -9,11 +9,16 @@ opening the control panel.
 > still missing is the widget chrome — tray icon, always-on-top, remembered
 > position (M3) and automatic refresh (M4) — so for now you refresh by hand.
 >
-> Two caveats worth knowing before trusting a number:
-> the API contract could only be reconstructed from public sources, because the
-> official documentation is behind a panel login; and how
-> `monthly_data_multiplier` is applied is **still undecided and unverified
-> against a live account** — see [`docs/api-contract.md`](docs/api-contract.md).
+> One caveat before trusting a number: the official API documentation sits
+> behind a panel login, so the data contract here was reconstructed from public
+> sources and has not been checked against a live account yet.
+>
+> The one detail still unverified is `monthly_data_multiplier`, a
+> per-datacenter quota coefficient. It only affects the percentage when that
+> coefficient is **not 1** — for example a VPS migrated to a CN2 GT location,
+> where the quota shrinks to a third. In an ordinary location it is 1 and the
+> percentage is simply used ÷ quota.
+> Details: [`docs/api-contract.md`](docs/api-contract.md).
 > Current state: [PROGRESS.md](PROGRESS.md).
 
 ## Features (v1 scope)

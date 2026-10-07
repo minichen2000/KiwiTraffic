@@ -7,9 +7,13 @@
 > 还缺的是悬浮窗的那层外壳 —— 托盘图标、置顶、位置记忆（M3）与自动刷新（M4），
 > 所以目前需要手动点刷新。
 >
-> 在信任某个数字之前，有两点需要知道：官方 API 文档在面板登录之后，本项目的数据契约
-> 只能从公开资料重建；而 `monthly_data_multiplier` 的用法**仍未定论、也未经真实账号验证**
-> —— 见 [`docs/api-contract.md`](docs/api-contract.md)。当前进度见 [PROGRESS.md](PROGRESS.md)。
+> 在信任某个数字之前，有一点需要知道：官方 API 文档在面板登录之后，本项目的契约只能
+> 从公开资料重建，且尚未与真实账号对照过。
+>
+> 唯一还没验证的是 `monthly_data_multiplier`（按机房计算的配额系数）。它**只在系数 ≠ 1
+> 时**才影响百分比 —— 比如把 VPS 迁到过 CN2 GT 机房，那里额度会缩到三分之一。
+> 普通机房系数为 1，百分比就是简单的「已用 ÷ 额度」。
+> 细节见 [`docs/api-contract.md`](docs/api-contract.md)，当前进度见 [PROGRESS.md](PROGRESS.md)。
 
 ## 功能（第一版范围）
 
