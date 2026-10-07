@@ -1,0 +1,121 @@
+<Window x:Class="KiwiTraffic.App.Views.SettingsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:conv="clr-namespace:KiwiTraffic.App.Converters"
+        Title="{Binding WindowTitle}"
+        Width="470"
+        SizeToContent="Height"
+        ResizeMode="NoResize"
+        WindowStartupLocation="CenterScreen">
+
+    <Window.Resources>
+        <conv:BoolToVisibilityConverter x:Key="Show" />
+        <conv:BoolToVisibilityConverter x:Key="Hide" Invert="True" />
+    </Window.Resources>
+
+    <Grid Margin="18">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <!-- Connection -->
+
+        <TextBlock Grid.Row="0" Grid.Column="0" Text="别名" VerticalAlignment="Center"
+                   Margin="0,0,12,8" />
+        <TextBox Grid.Row="0" Grid.Column="1" Margin="0,0,0,8"
+                 Text="{Binding Alias, UpdateSourceTrigger=PropertyChanged}"
+                 ToolTip="可选，仅用于显示" />
+
+        <TextBlock Grid.Row="1" Grid.Column="0" Text="VEID" VerticalAlignment="Center"
+                   Margin="0,0,12,8" />
+        <TextBox Grid.Row="1" Grid.Column="1" Margin="0,0,0,8"
+                 Text="{Binding VeidText, UpdateSourceTrigger=PropertyChanged}" />
+
+        <TextBlock Grid.Row="2" Grid.Column="0" Text="API Key" VerticalAlignment="Center"
+                   Margin="0,0,12,8" />
+        <Grid Grid.Row="2" Grid.Column="1" Margin="0,0,0,8">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <Grid Grid.Column="0">
+                <PasswordBox x:Name="ApiKeyBox" PasswordChanged="OnApiKeyPasswordChanged"
+                             Visibility="{Binding IsApiKeyVisible, Converter={StaticResource Hide}}" />
+                <TextBox Text="{Binding ApiKey, UpdateSourceTrigger=PropertyChanged}"
+                         Visibility="{Binding IsApiKeyVisible, Converter={StaticResource Show}}" />
+            </Grid>
+            <CheckBox Grid.Column="1" Content="显示" Margin="8,0,0,0" VerticalAlignment="Center"
+                      IsChecked="{Binding IsApiKeyVisible}"
+                      Checked="OnRevealApiKeyToggled" Unchecked="OnRevealApiKeyToggled" />
+        </Grid>
+
+        <CheckBox Grid.Row="3" Grid.Column="1" Content="在本机记住 API Key（使用 Windows DPAPI 加密）"
+                  Margin="0,0,0,8" IsChecked="{Binding RememberApiKey}" />
+
+        <Separator Grid.Row="4" Grid.ColumnSpan="2" Margin="0,6,0,10" />
+
+        <!-- Proxy -->
+
+        <TextBlock Grid.Row="5" Grid.Column="0" Text="代理" VerticalAlignment="Center"
+                   Margin="0,0,12,8" />
+        <ComboBox Grid.Row="5" Grid.Column="1" Margin="0,0,0,8"
+                  ItemsSource="{Binding ProxyModeNames}"
+                  SelectedIndex="{Binding ProxyModeIndex}" />
+
+        <StackPanel Grid.Row="6" Grid.Column="1" Margin="0,0,0,8"
+                    Visibility="{Binding IsManualProxy, Converter={StaticResource Show}}">
+            <Grid Margin="0,0,0,6">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="90" />
+                </Grid.ColumnDefinitions>
+                <TextBox Grid.Column="0" Margin="0,0,6,0"
+                         Text="{Binding ProxyHost, UpdateSourceTrigger=PropertyChanged}" />
+                <TextBox Grid.Column="1"
+                         Text="{Binding ProxyPortText, UpdateSourceTrigger=PropertyChanged}" />
+            </Grid>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <TextBox Grid.Column="0" Margin="0,0,6,0"
+                         ToolTip="用户名（可选）"
+                         Text="{Binding ProxyUsername, UpdateSourceTrigger=PropertyChanged}" />
+                <PasswordBox x:Name="ProxyPasswordBox" Grid.Column="1"
+                             ToolTip="密码（可选，同样加密保存）"
+                             PasswordChanged="OnProxyPasswordChanged" />
+            </Grid>
+            <TextBlock Text="主机 / 端口；第一版不支持 PAC 与 SOCKS。" Opacity="0.7"
+                       FontSize="11" Margin="0,4,0,0" TextWrapping="Wrap" />
+        </StackPanel>
+
+        <!-- Status and actions -->
+
+        <TextBlock Grid.Row="7" Grid.ColumnSpan="2" Margin="0,4,0,10"
+                   Text="{Binding StatusMessage}" TextWrapping="Wrap"
+                   Visibility="{Binding HasStatusMessage, Converter={StaticResource Show}}" />
+
+        <StackPanel Grid.Row="8" Grid.ColumnSpan="2" Orientation="Horizontal"
+                    HorizontalAlignment="Right" Margin="0,6,0,0">
+            <Button Content="测试连接" Padding="14,4" Margin="0,0,8,0"
+                    IsEnabled="{Binding IsNotBusy}" Click="OnTestConnection" />
+            <Button Content="保存" Padding="14,4" Margin="0,0,8,0" IsDefault="True"
+                    IsEnabled="{Binding IsNotBusy}" Click="OnSave" />
+            <Button Content="取消" Padding="14,4" IsCancel="True" />
+        </StackPanel>
+    </Grid>
+</Window>

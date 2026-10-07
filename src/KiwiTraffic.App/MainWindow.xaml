@@ -1,19 +1,18 @@
 <Window x:Class="KiwiTraffic.App.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="KiwiTraffic（开发预览）"
+        xmlns:conv="clr-namespace:KiwiTraffic.App.Converters"
+        Title="KiwiTraffic"
         Width="320"
         SizeToContent="Height"
         ResizeMode="CanMinimize"
         WindowStartupLocation="CenterScreen">
-    <StackPanel Margin="16">
 
-        <!-- The preview must never be mistaken for real data. -->
-        <Border Background="#FFF4CE" BorderBrush="#E0C97F" BorderThickness="1"
-                CornerRadius="3" Padding="8,4" Margin="0,0,0,12">
-            <TextBlock Text="模拟数据 · SIMULATED — 尚未连接真实 API"
-                       FontWeight="SemiBold" Foreground="#5A4A00" TextWrapping="Wrap" />
-        </Border>
+    <Window.Resources>
+        <conv:BoolToVisibilityConverter x:Key="Show" />
+    </Window.Resources>
+
+    <StackPanel Margin="16">
 
         <TextBlock Text="{Binding Alias}" FontWeight="SemiBold" FontSize="14"
                    TextTrimming="CharacterEllipsis" />
@@ -29,9 +28,24 @@
         <TextBlock Text="{Binding RemainingText}" Margin="0,4,0,0" TextWrapping="Wrap" />
         <TextBlock Text="{Binding ResetText}" Margin="0,4,0,0" TextWrapping="Wrap" />
 
+        <!-- A failure never replaces the numbers above; it is stated next to them. -->
+        <Border Background="#FFF4CE" BorderBrush="#E0C97F" BorderThickness="1" CornerRadius="3"
+                Padding="8,4" Margin="0,10,0,0"
+                Visibility="{Binding HasStatusMessage, Converter={StaticResource Show}}">
+            <TextBlock Text="{Binding StatusMessage}" TextWrapping="Wrap" Foreground="#5A4A00" />
+        </Border>
+
         <Separator Margin="0,12,0,8" />
 
-        <TextBlock Text="{Binding UpdatedText}" Opacity="0.7" FontSize="11" TextWrapping="Wrap" />
+        <Grid>
+            <TextBlock Text="{Binding UpdatedText}" Opacity="0.7" FontSize="11"
+                       VerticalAlignment="Center" TextWrapping="Wrap" />
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                <Button Content="刷新" Padding="12,3" Margin="0,0,8,0"
+                        IsEnabled="{Binding IsNotBusy}" Click="OnRefresh" />
+                <Button Content="设置…" Padding="12,3" Click="OnOpenSettings" />
+            </StackPanel>
+        </Grid>
 
     </StackPanel>
 </Window>

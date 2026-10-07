@@ -10,11 +10,14 @@
 | 里程碑 | 状态 |
 | --- | --- |
 | M0 核实 API 与运行环境 | 环境完成；API 契约已核实并落到 `docs/api-contract.md`，**倍率口径未决**（见下） |
-| M1 骨架与纯计算模块 | 骨架、纯计算、模拟预览界面、构建脚本均已完成并验证 |
-| M2 凭据与真实 API 适配 | 未开始（契约已足够开工，倍率按可切换策略实现） |
+| M1 骨架与纯计算模块 | 完成 |
+| M2 凭据与真实 API 适配 | 代码与自动化测试完成；**真实账号联调未做**（需用户输入密钥），因此未达完成条件 |
 | M3 悬浮窗与托盘 | 未开始 |
 | M4 刷新与提醒 | 未开始 |
 | M5 验收与绿色产物 | 未开始 |
+
+> M2 的完成条件包含「真实账号数据与面板完成首次对照」。这一项只能由用户在本机输入
+> VEID/API Key 后完成，因此当前状态是**待联调**，不能宣称 M2 已验收。
 
 ## M1 已完成内容
 
@@ -40,6 +43,50 @@
 | 大计数器与倍率 → 精度与单位正确、不重复乘倍率 | 部分：精度与单位已测；**倍率待 M0 契约** |
 | 其余各行（HTTP、限频、调度、提醒、DPI、托盘等） | 属 M2–M5，未开始 |
 
+## M2 已完成内容
+
+**存储层**（`KiwiTraffic.Infrastructure`）
+
+- `AtomicFile`：同目录临时文件 → 落盘 → 一步替换；写 UTF-8 无 BOM，读时剥离 BOM。
+- `JsonSettingsStore` / `JsonUsageCache`：schemaVersion + 显式迁移点；未知属性视为损坏
+  （手改配置时拼错的键不会被静默丢弃）；损坏文件先备份成 `<名>.corrupt-<时间戳>` 再报错。
+- `DpapiCredentialStore`：DPAPI `CurrentUser` + 应用级附加熵；解密失败单独返回
+  `Undecryptable`（换机器/换用户），不伪装成「未配置」。
+
+**凭据隔离**（本轮的额外加固）
+
+`StoredCredentials` 增加了 `ApiKeyProfileId`：密钥标记它属于哪台 VPS。切换 VPS 后旧密钥
+**不再可用**，而是引导重新输入 —— 否则新 VEID 配旧密钥会得到一条令人困惑的认证失败，
+而不是「你换了机器」这个明显结论。代理密码是机器级的，特意不绑定 VPS。
+
+**API 层**
+
+- 宽松 JSON 转换器：兼容已核实的「同一字段可能是数字或数字字符串」，非法值抛异常而**不退化为 0**。
+  注意两处的未知字段策略**故意相反**：API 响应用 `Skip`（真实响应有约四十个字段），
+  本地配置文件用 `Disallow`（拼错的键应当报错）。
+- `UsageMapper`：唯一处理单位与倍率的地方。任何无法从契约确认的情况一律返回失败，
+  失败**绝不产出快照**，因此旧数据不会被半成品覆盖。
+- `MultiplierPolicy`：倍率口径未决，收敛为可切换策略，默认 `ScaleBoth`（官方文档口径）。
+- `KiwiVmClient`：固定 HTTPS 端点（不接受自定义 Base URL）、POST 表单传参（密钥不进 URL）、
+  不跟随重定向（否则密钥会被重放到跳转目标）、区分超时与用户取消、`error != 0` 不算成功。
+- `KiwiVmHttpClientFactory`：保留证书校验；三种代理模式；代理密码不写进代理 URL。
+
+**并发与切换**
+
+- `UsageSession`：同一时刻最多一个请求（并发调用共享同一个在途请求，而不是排队发第二个）；
+  切换配置会取消旧请求，且**即使旧响应仍然返回也会被丢弃**，不会写进缓存。
+
+**界面**
+
+- 设置窗口（首次配置与后续编辑同一窗口）：别名 / VEID / API Key（默认遮蔽，可临时显示）/
+  记住密钥 / 代理模式与手动代理；「测试连接」用屏幕上未保存的值查询，失败不影响已生效配置；
+  「取消」保留原状态。
+- 主窗口改为显示**真实数据**；失败时保留上一次的数字并在旁边说明原因，绝不用 0 覆盖。
+  M1 的模拟数据横幅随之移除。
+- 启动流程：读配置 → 未配置则进入首次配置 → 配置会话 → 显示窗口 → 先显示缓存再请求。
+- 保存顺序：**先存凭据、再存配置**。若第二步失败，磁盘上的配置仍然描述着密钥所属的那台 VPS，
+  于是程序会要求重新输入，而不是把新 VEID 与旧密钥配在一起。
+
 ## 实测数据（2026-10-07，本机）
 
 | 项 | 数值 |
@@ -48,25 +95,26 @@
 | release 产物 | `dist/release/KiwiTraffic.exe`，181.7 MB（ReadyToRun 开启） |
 | 启动到窗口出现 | fast 851 ms；release 1509 ms（均为首次运行，含单文件原生组件解压） |
 | 工作集 | fast 150.3 MB；release 147 MB（空闲预览窗口） |
-| 测试 | Core 36/36 通过；Release 构建 0 警告 0 错误 |
+| 测试 | Core 75 + Infrastructure 81 = **156 个，全部通过**；Release 构建 0 警告 0 错误 |
 | 产物目录 | `dist/<档>/` 下只有一个 EXE，调试符号在 `symbols/` 子目录 |
-
-> 注：`KiwiTraffic.Infrastructure.Tests` 目前没有测试，`dotnet test` 会提示
-> 「没有可用测试」。这是预期的，M2 会往里加。不影响退出码。
+| 首次启动行为 | 无配置时显示设置窗口，关闭后以 0 码退出；数据目录 `%LOCALAPPDATA%\KiwiTraffic\` 被建立 |
 
 体积偏大属自包含单文件 WPF 的正常水平（未启用 trimming/AOT，见 `BUILD.md` 的说明）。
 
 ## 待办
 
 - [x] M0：API 契约核实 → `docs/api-contract.md`
-- [ ] M0 收尾：由用户实测四项待定事项（倍率口径、SI/IEC、面板一致性、重置时区）
-- [ ] M2：`IKiwiVmClient`、`UsageMapper`（含可切换的倍率策略）、宽松 JSON 转换器、
-  DPAPI 凭据、配置/缓存存储、连接测试
+- [x] M2：`IKiwiVmClient`、`UsageMapper`（含可切换的倍率策略）、宽松 JSON 转换器、
+  DPAPI 凭据、配置/缓存存储、连接测试、配置切换取消
+- [ ] **M2 联调（卡在用户）**：用户在本机输入 VEID/API Key，然后用 `docs/api-contract.md`
+  第 8 节的方法核对四项待定事项
 - [ ] M3：真正的悬浮窗（拖动/置顶/DPI 位置记忆）、托盘、单实例
-- [ ] M4：刷新协调器、退避、限频冷却、提醒去重、开机启动
+- [ ] M4：刷新协调器（自动刷新/节流/退避/限频冷却）、提醒去重、开机启动
 - [ ] M5：验收、文档、末次实测
-- [ ] 决定并记录 `BytePrefixStyle` 的最终取值（需与面板核对）
-- [ ] 依赖计划：`Microsoft.Extensions.*` 仅在有实际需要时再引入，当前无外部依赖
+- [ ] 代理密码与开机启动目前只有存储与模型，尚无界面（代理密码已在设置窗口，
+  开机启动待 M4）
+- [ ] 依赖计划：`Microsoft.Extensions.*` 仅在有实际需要时再引入；当前唯一外部依赖是
+  `System.Security.Cryptography.ProtectedData`（DPAPI 不在 WindowsDesktop 共享框架里）
 
 ## 关键决策与理由
 
@@ -143,7 +191,36 @@ System.InvalidOperationException: 无法对「WidgetPreviewViewModel」类型的
 ### 5. xUnit 的 `[InlineData]` 不能传 decimal 字面量
 
 `[InlineData(0)]` 会被当成 `int`，无法转成 `decimal?`（`ArgumentException`）。
-改用 `TheoryData<decimal?>` + `[MemberData]`。
+改用 `TheoryData<decimal?>` + `[MemberData]`。同理，`double?` 参数要写 `0.0` 而不是 `0`。
+
+### 6. XAML 注释里不能出现 `--`
+
+用 `<!-- 连接 --... -->` 这类横线分隔的注释会直接编译失败：
+`MC3000: An XML comment cannot contain '--'`。XAML 就是 XML。
+
+### 7. 公开的窗口构造函数不能接收 internal 参数类型
+
+XAML 生成的窗口类是 public，`public MainWindow(AppServices ...)` 里若 `AppServices` 是
+internal 会报 `CS0051`。处置：把 `AppServices` 也设为 public（本程序集里视图模型本来就是 public）。
+
+### 8. `ProtectedData` 不在 WindowsDesktop 共享框架里
+
+即使目标框架是 `net10.0-windows`，也必须显式引用 NuGet 包
+`System.Security.Cryptography.ProtectedData`（当前 10.0.12）。这是本项目目前唯一的外部依赖。
+
+### 9. CA1001 对 `Application` 是误报
+
+`App` 持有可释放字段就要求类型本身可释放，而 `Application` 无法实现 `IDisposable`。
+已就地 `[SuppressMessage]` 并写明理由（字段在 `OnExit` 中释放）。
+
+### 10. 我自己写错过一次倍率推导（已修正）
+
+初版 `docs/api-contract.md` 第 2 节写成「两个倍率口径在百分比上等价、只有剩余量不同」。
+实际上：口径 A（两者都乘）与「完全不乘」在百分比上等价，而口径 B（只乘额度）会得到
+`c/(pm×m)`，与 A 相差 `1/m` 倍。**配额在 A、B 下都是 `pm×m`，所以不能用配额来区分二者**，
+只能看面板显示的「已用」是 `c` 还是 `c×m`。文档第 2、8 节已改正。
+
+> 教训：这类"看起来显然"的代数结论要落到纸面上验算，尤其当它会决定实现方式时。
 
 ## M0：API 契约核实结果（2026-10-07）
 

@@ -103,6 +103,16 @@ shell 用 **pwsh 7**，不要用 Windows PowerShell 5.1。
   的节点上抛错），用 `SelectSingleNode` / XPath。
 - **自包含单文件 WPF 产物约 165 MB 属正常**，不是构建配置出错。不要为此擅自打开
   trimming 或 Native AOT。
+- **XAML 就是 XML：注释里不能出现 `--`。** 用横线做分隔的注释会以 `MC3000` 编译失败。
+- **XAML 生成的窗口类是 public**，所以 `public MainWindow(AppServices …)` 这类构造函数的
+  参数类型也必须是 public，否则 `CS0051`。
+- **未知字段策略在两种文件上故意相反**：KiwiVM API 响应用 `JsonUnmappedMemberHandling.Skip`
+  （真实响应有约四十个字段），本地 settings/cache 用 `Disallow`（手改配置拼错的键必须报错）。
+  改任何一处前先想清楚是哪一类。
+- **`ProtectedData` 需要 NuGet 包 `System.Security.Cryptography.ProtectedData`**，
+  它在 WindowsDesktop 共享框架里没有。这是目前唯一的外部依赖，不要顺手加别的。
+- **凭据必须绑定 VPS**：`StoredCredentials.ApiKeyProfileId` 是防止「新 VEID 配旧密钥」的
+  关键，任何新增的密钥类字段都要想清楚它的作用域（机器级还是 VPS 级）。
 
 ## 记录文件分工
 

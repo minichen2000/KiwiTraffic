@@ -4,12 +4,19 @@ A small always-on Windows desktop widget that shows how much of the current
 billing-cycle traffic your BandwagonHost (KiwiVM) VPS has used — without
 opening the control panel.
 
-> **Status: early development.** Only project scaffolding and the pure
-> calculation layer exist so far. There is no working widget yet, and the
-> KiwiVM API data contract has **not** been verified against a live account.
-> See [PROGRESS.md](PROGRESS.md) for the current state.
+> **Status: usable, but unfinished.** It reads real data from the KiwiVM API:
+> set up your VEID and API key and it shows the current cycle's usage. What is
+> still missing is the widget chrome — tray icon, always-on-top, remembered
+> position (M3) and automatic refresh (M4) — so for now you refresh by hand.
+>
+> Two caveats worth knowing before trusting a number:
+> the API contract could only be reconstructed from public sources, because the
+> official documentation is behind a panel login; and how
+> `monthly_data_multiplier` is applied is **still undecided and unverified
+> against a live account** — see [`docs/api-contract.md`](docs/api-contract.md).
+> Current state: [PROGRESS.md](PROGRESS.md).
 
-## Planned features (v1)
+## Features (v1 scope)
 
 - Large readout of the used percentage for the current cycle, plus used /
   quota / remaining traffic and the next reset time.
@@ -68,9 +75,13 @@ See [BUILD.md](BUILD.md) for details.
 1. Run `KiwiTraffic.exe`. It has no installer — put it wherever you like.
 2. On first launch it asks for a VPS alias (optional), the VEID and the API
    key. Both are found in your KiwiVM control panel under *API*.
-3. The widget appears in the bottom-right of the primary display work area and
-   stays in the system tray. Closing the window only hides it; use
-   *Exit* in the tray menu to quit.
+3. The window shows the current cycle. Use *Refresh* to fetch again, or
+   *Settings…* to change the configuration.
+
+   Not there yet: the window does not stay on top, does not remember its
+   position, has no tray icon, and does not refresh by itself. Closing it quits
+   the application. Those arrive with M3 and M4 — see
+   [PROGRESS.md](PROGRESS.md).
 
 ## Data & privacy
 

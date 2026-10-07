@@ -1,9 +1,8 @@
-﻿<Application x:Class="KiwiTraffic.App.App"
+<Application x:Class="KiwiTraffic.App.App"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:local="clr-namespace:KiwiTraffic.App"
-             StartupUri="MainWindow.xaml">
-    <Application.Resources>
-         
-    </Application.Resources>
+             xmlns:local="clr-namespace:KiwiTraffic.App">
+    <!-- No StartupUri: App.OnStartup decides between the settings window and
+         the widget, depending on whether the machine is configured yet. -->
+    <Application.Resources />
 </Application>
