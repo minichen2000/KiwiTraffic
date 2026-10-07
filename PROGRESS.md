@@ -9,9 +9,9 @@
 
 | 里程碑 | 状态 |
 | --- | --- |
-| M0 核实 API 与运行环境 | 环境部分完成；API 契约**待核实**（subagent 联网调研已派出） |
+| M0 核实 API 与运行环境 | 环境完成；API 契约已核实并落到 `docs/api-contract.md`，**倍率口径未决**（见下） |
 | M1 骨架与纯计算模块 | 骨架、纯计算、模拟预览界面、构建脚本均已完成并验证 |
-| M2 凭据与真实 API 适配 | 未开始 |
+| M2 凭据与真实 API 适配 | 未开始（契约已足够开工，倍率按可切换策略实现） |
 | M3 悬浮窗与托盘 | 未开始 |
 | M4 刷新与提醒 | 未开始 |
 | M5 验收与绿色产物 | 未开始 |
@@ -58,8 +58,10 @@
 
 ## 待办
 
-- [ ] M0：拿到 KiwiVM API 字段与错误说明 → 填写 `docs/api-contract.md`
-- [ ] M2：`IKiwiVmClient`、`UsageMapper`、DPAPI 凭据、配置/缓存存储、连接测试
+- [x] M0：API 契约核实 → `docs/api-contract.md`
+- [ ] M0 收尾：由用户实测四项待定事项（倍率口径、SI/IEC、面板一致性、重置时区）
+- [ ] M2：`IKiwiVmClient`、`UsageMapper`（含可切换的倍率策略）、宽松 JSON 转换器、
+  DPAPI 凭据、配置/缓存存储、连接测试
 - [ ] M3：真正的悬浮窗（拖动/置顶/DPI 位置记忆）、托盘、单实例
 - [ ] M4：刷新协调器、退避、限频冷却、提醒去重、开机启动
 - [ ] M5：验收、文档、末次实测
@@ -143,14 +145,34 @@ System.InvalidOperationException: 无法对「WidgetPreviewViewModel」类型的
 `[InlineData(0)]` 会被当成 `int`，无法转成 `decimal?`（`ArgumentException`）。
 改用 `TheoryData<decimal?>` + `[MemberData]`。
 
-## 尚未核实、不得实现假设的事项
+## M0：API 契约核实结果（2026-10-07）
 
-以下全部等待 M0 契约，**不得凭字段名猜测**：
+完整结果见 **`docs/api-contract.md`**（唯一展开处，含可信度标注与来源）。摘要：
 
-- `data_counter` / `plan_monthly_data` 的单位到底是字节还是 GB
-- `monthly_data_multiplier` 是否存在、接口返回值是否已应用倍率
-- `data_next_reset` 的格式与时区
-- API 成功判定与错误码表示方式
-- 官方限频规则
-- 面板展示采用 SI 还是 IEC 口径（当前代码里是单一常量 `WidgetPreviewViewModel.PrefixStyle`，
-  定下来只改一处）
+**已核实**（官方文档经多源转录一致，或官方原文）：
+
+- `plan_monthly_data`、`data_counter` 单位都是**字节**；`data_next_reset` 是 **Unix 秒级时间戳**
+- 套餐名字段是 `plan`，**不存在 `plan_max_data`**
+- 成功判定：响应含 `error` 字段，**`0` 为成功**；非 0 看 `message`
+  （`700005` = 认证失败，多源确认；完整错误码表**未找到**）
+- `getRateLimitStatus` 存在，返回 `remaining_points_15min` / `remaining_points_24h`；
+  **点数上限未找到**
+- base URL 只有 `https://api.64clouds.com/v1/`；`v1.1` **无任何证据**
+- API Key 是**每台 VPS 一把的全权限凭证**，**无只读密钥**（否定性结论）
+- `getLiveServiceInfo` 与 `getServiceInfo` 同在 `/v1/`，前者多返回 VM 运行时状态且**最长耗时 15 秒**
+
+**关键未决：`monthly_data_multiplier` 的口径**（`docs/api-contract.md` 第 2 节）。
+官方文档说 `data_counter` 与 `plan_monthly_data` **两者都乘**；但社区实测现象是倍率作为
+**按机房的配额系数**（CN2 GT 为 0.33x，配额缩到 1/3），此时已用量不应再乘。两者在"百分比"上
+等价、在"剩余量"上不同。**未找到任何倍率 ≠ 1 的真实响应样本**，公开资料无法定案。
+处置：默认按官方文档口径实现，但把倍率策略收敛在 `UsageMapper` 一处、保持可切换，
+**在真实账号对照前不得宣称倍率已验证**。
+
+**实现风险提醒**：KiwiVM 响应的字段类型不稳定（同一字段可能是 JSON number 或字符串数字），
+M2 必须用宽松的自定义 `JsonConverter`，解析失败判为无效响应，**不得静默退化为 0**。
+
+## 需要用户本机实测才能定案的事项
+
+见 `docs/api-contract.md` 第 8 节。共四项：倍率口径、面板单位是 SI 还是 IEC、
+百分比/重置时间与面板的一致性（含采样时间差）、重置时刻的时区。均需用户在程序里
+自行输入 VEID/API Key 完成，**密钥不需要发到聊天中**。
