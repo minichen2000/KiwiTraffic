@@ -52,6 +52,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `scripts/make-app-icon.ps1` rather than kept as an opaque binary.
 - Hovering the name at the top of the widget shows the full text, but only when
   it is actually cut off.
+- The footer now shows when the reading was taken as a clock time and a relative
+  age, and the relative part keeps moving on its own instead of sitting on
+  "just now" forever. The exact second is in its tooltip.
 - The settings window is noticeably more compact: single-line inputs are a
   fixed 30 DIP instead of growing to 41, and the spacing around them is
   tighter. The tray icon now shows the same mark as the application icon,

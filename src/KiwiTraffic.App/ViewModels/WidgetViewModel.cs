@@ -10,10 +10,15 @@ namespace KiwiTraffic.App.ViewModels;
 /// </summary>
 /// <remarks>
 /// Everything here comes from <see cref="TrafficUsage"/>; no raw API field is
-/// ever read or converted in the UI.
+/// ever read or converted in the UI. The last reading is kept so the relative
+/// labels can be re-rendered without a new fetch - see
+/// <see cref="RefreshRelativeTimes"/>.
 /// </remarks>
 public sealed class WidgetViewModel : ObservableObject
 {
+    private TrafficUsage? _lastUsage;
+    private TrafficSnapshot? _lastSnapshot;
+
     private string _statusMessage = string.Empty;
     private bool _isBusy;
     private UsageLevel _level = UsageLevel.Normal;
@@ -57,7 +62,7 @@ public sealed class WidgetViewModel : ObservableObject
     public bool IsBarStyle => Style == IndicatorStyle.Bar;
 
     /// <summary>False until a reading has been applied, so the gauge can stay hidden.</summary>
-    public bool HasData => HasEverApplied;
+    public bool HasData => _lastSnapshot is not null;
 
     public string PercentText { get; private set; } = "—";
 
@@ -75,7 +80,11 @@ public sealed class WidgetViewModel : ObservableObject
 
     public string ResetText { get; private set; } = string.Empty;
 
+    /// <summary>When, and how long ago, the reading on screen was taken.</summary>
     public string UpdatedText { get; private set; } = string.Empty;
+
+    /// <summary>The exact moment, for the tooltip - "just now" is not an answer.</summary>
+    public string UpdatedTooltip { get; private set; } = string.Empty;
 
     public string StatusMessage
     {
@@ -105,13 +114,43 @@ public sealed class WidgetViewModel : ObservableObject
 
     public bool IsNotBusy => !IsBusy;
 
-    private bool HasEverApplied { get; set; }
-
-    /// <summary>Re-renders the reading against a new "now" so relative times stay true.</summary>
+    /// <summary>Shows a new reading. <paramref name="now"/> is the moment of display.</summary>
     public void Apply(TrafficUsage usage, TrafficSnapshot snapshot, DateTimeOffset now)
     {
         ArgumentNullException.ThrowIfNull(usage);
         ArgumentNullException.ThrowIfNull(snapshot);
+
+        _lastUsage = usage;
+        _lastSnapshot = snapshot;
+
+        Render(now);
+    }
+
+    /// <summary>
+    /// Re-renders the time-dependent labels against a new "now".
+    /// </summary>
+    /// <remarks>
+    /// Without this the widget would still claim "just now" hours after the
+    /// last successful fetch, which is exactly the misleading state the plan
+    /// forbids. Called on a timer by the window.
+    /// </remarks>
+    /// <returns><c>false</c> when there is no reading to re-render.</returns>
+    public bool RefreshRelativeTimes(DateTimeOffset now)
+    {
+        if (_lastUsage is null || _lastSnapshot is null)
+        {
+            return false;
+        }
+
+        Render(now);
+        return true;
+    }
+
+    private void Render(DateTimeOffset now)
+    {
+        var usage = _lastUsage!;
+        var snapshot = _lastSnapshot!;
+        var nowUtc = now.ToUniversalTime();
 
         PercentText = usage.UsedPercent is { } percent
             ? percent.ToString("F1", CultureInfo.InvariantCulture) + "%"
@@ -131,10 +170,12 @@ public sealed class WidgetViewModel : ObservableObject
             ? $"剩余 {ByteSizeFormatter.Format(remaining, DisplayFormat.BytePrefix)}"
             : "剩余未知";
 
-        ResetText = DescribeReset(snapshot.NextResetAtUtc, now);
-        UpdatedText = $"更新于 {DescribeAge(snapshot.FetchedAtUtc, now)}";
+        ResetText = DescribeReset(snapshot.NextResetAtUtc, nowUtc);
 
-        HasEverApplied = true;
+        var age = nowUtc - snapshot.FetchedAtUtc;
+        UpdatedText = $"更新于 {RelativeTime.Stamp(snapshot.FetchedAtUtc, now)}（{RelativeTime.Describe(age)}）";
+        UpdatedTooltip = snapshot.FetchedAtUtc.ToLocalTime()
+            .ToString("yyyy-MM-dd HH:mm:ss zzz", CultureInfo.InvariantCulture);
 
         OnPropertyChanged(nameof(PercentText));
         OnPropertyChanged(nameof(ProgressValue));
@@ -142,6 +183,7 @@ public sealed class WidgetViewModel : ObservableObject
         OnPropertyChanged(nameof(RemainingText));
         OnPropertyChanged(nameof(ResetText));
         OnPropertyChanged(nameof(UpdatedText));
+        OnPropertyChanged(nameof(UpdatedTooltip));
         OnPropertyChanged(nameof(HasData));
     }
 
@@ -150,43 +192,21 @@ public sealed class WidgetViewModel : ObservableObject
     /// reported as "waiting for the provider to update" - never silently
     /// treated as a fresh cycle with a zeroed counter.
     /// </summary>
-    private static string DescribeReset(DateTimeOffset? nextResetAtUtc, DateTimeOffset now)
+    private static string DescribeReset(DateTimeOffset? nextResetAtUtc, DateTimeOffset nowUtc)
     {
         if (nextResetAtUtc is null)
         {
             return "重置时间未知";
         }
 
-        if (nextResetAtUtc <= now)
+        if (nextResetAtUtc <= nowUtc)
         {
             return "待服务商更新重置时间";
         }
 
         var local = nextResetAtUtc.Value.ToLocalTime();
-        var days = (int)Math.Ceiling((nextResetAtUtc.Value - now).TotalDays);
+        var remaining = nextResetAtUtc.Value - nowUtc;
 
-        return $"{local.ToString("yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture)} 重置 · 还有 {days} 天";
-    }
-
-    /// <summary>
-    /// Relative to now, so the text keeps moving instead of getting stuck on
-    /// "just now" - which would misrepresent a reading that stopped updating.
-    /// </summary>
-    private static string DescribeAge(DateTimeOffset fetchedAtUtc, DateTimeOffset now)
-    {
-        var age = now - fetchedAtUtc;
-
-        if (age < TimeSpan.Zero)
-        {
-            age = TimeSpan.Zero;
-        }
-
-        return age switch
-        {
-            { TotalMinutes: < 1 } => "刚刚",
-            { TotalHours: < 1 } => $"{(int)age.TotalMinutes} 分钟前",
-            { TotalDays: < 1 } => $"{(int)age.TotalHours} 小时前",
-            _ => $"{(int)age.TotalDays} 天前",
-        };
+        return $"{local.ToString("yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture)} 重置 · 还有 {RelativeTime.DescribeUntil(remaining)}";
     }
 }

@@ -90,7 +90,9 @@
 
             <Grid Grid.Row="7" Margin="0,12,0,0">
                 <TextBlock Text="{Binding UpdatedText}" FontSize="10.5" VerticalAlignment="Center"
-                           Foreground="{DynamicResource FaintTextBrush}" TextWrapping="Wrap" />
+                           Foreground="{DynamicResource FaintTextBrush}" TextWrapping="Wrap"
+                           ToolTip="{Binding UpdatedTooltip}"
+                           ToolTipService.ShowDuration="20000" />
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
                     <Button Content="刷新" Style="{StaticResource FlatButton}"
                             IsEnabled="{Binding IsNotBusy}" Click="OnRefresh" />

@@ -23,6 +23,7 @@ public partial class MainWindow : Window
 {
     private readonly AppServices _services;
     private readonly DispatcherTimer _placementSaveTimer;
+    private readonly DispatcherTimer _clockTimer;
 
     private readonly TrayIcon _tray;
     private WidgetViewModel _viewModel;
@@ -61,6 +62,16 @@ public partial class MainWindow : Window
             OnPlacementSaveTick,
             Dispatcher);
         _placementSaveTimer.Stop();
+
+        // The relative labels have to keep moving. Leaving them frozen would
+        // let the widget claim "just now" long after the reading went stale -
+        // the plan calls that out by name.
+        _clockTimer = new DispatcherTimer(
+            TimeSpan.FromSeconds(20),
+            DispatcherPriority.Background,
+            OnClockTick,
+            Dispatcher);
+        _clockTimer.Start();
 
         LocationChanged += OnGeometryChanged;
         SizeChanged += OnGeometryChanged;
@@ -188,6 +199,9 @@ public partial class MainWindow : Window
         }
     }
 
+    private void OnClockTick(object? sender, EventArgs e)
+        => _viewModel.RefreshRelativeTimes(DateTimeOffset.Now);
+
     private async void OnPlacementSaveTick(object? sender, EventArgs e)
     {
         _placementSaveTimer.Stop();
@@ -272,6 +286,7 @@ public partial class MainWindow : Window
         {
             // The tray icon belongs to the application, which disposes it on exit.
             _placementSaveTimer.Stop();
+            _clockTimer.Stop();
 
             base.OnClosing(e);
             return;
